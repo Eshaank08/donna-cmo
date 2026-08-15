@@ -41,6 +41,7 @@ const navMain = [
       { title: "Competitor ads", url: "/tools/competitor-ads" },
       { title: "Idea gate", url: "/tools/idea-gate" },
       { title: "Ideation board", url: "/tools/ideation-board" },
+      { title: "Voice", url: "/tools/voice" },
     ],
   },
   {

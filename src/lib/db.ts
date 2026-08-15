@@ -68,6 +68,23 @@ function createDb() {
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS voice_profile (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      samples TEXT NOT NULL DEFAULT '[]',
+      tone TEXT,
+      sentence_patterns TEXT,
+      recurring_phrases TEXT,
+      avoid TEXT,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS voice_humanize_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      input_text TEXT NOT NULL,
+      output_text TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
   return db;
 }

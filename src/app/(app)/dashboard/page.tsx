@@ -11,6 +11,7 @@ const TOOLS = [
   { name: "Competitor ads", href: "/tools/competitor-ads", comingSoon: true },
   { name: "Idea gate", href: "/tools/idea-gate", comingSoon: false },
   { name: "Ideation board", href: "/tools/ideation-board", comingSoon: false },
+  { name: "Voice", href: "/tools/voice", comingSoon: false },
 ];
 
 export default function DashboardPage() {
