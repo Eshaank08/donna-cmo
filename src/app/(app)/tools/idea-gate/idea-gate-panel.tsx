@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,10 +25,44 @@ import type { IdeaCheck, IdeaGateConfig } from "@/lib/idea-gate";
 import {
   checkIdeaAction,
   saveIdeaGateConfigAction,
+  sendIdeaToBoardAction,
   type CheckState,
 } from "./actions";
 
 const initialState: CheckState = {};
+
+function SendToBoardButton({ ideaText }: { ideaText: string }) {
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  if (sent) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        Added to the ideation board.{" "}
+        <Link href="/tools/ideation-board" className="underline">
+          View board
+        </Link>
+      </p>
+    );
+  }
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      disabled={sending}
+      onClick={async () => {
+        setSending(true);
+        await sendIdeaToBoardAction(ideaText);
+        setSending(false);
+        setSent(true);
+      }}
+    >
+      {sending ? "Adding..." : "Send to ideation board"}
+    </Button>
+  );
+}
 
 export function IdeaGatePanel({
   config,
@@ -168,6 +203,14 @@ export function IdeaGatePanel({
               </div>
               <CardDescription>{state.result.idea_text}</CardDescription>
             </CardHeader>
+            {state.result.verdict === "YES" && (
+              <CardContent className="pt-0">
+                <SendToBoardButton
+                  key={state.result.id}
+                  ideaText={state.result.idea_text}
+                />
+              </CardContent>
+            )}
           </Card>
         )}
 
