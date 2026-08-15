@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import posthog from "posthog-js";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,12 +42,24 @@ export function RedditRadarPanel({ config }: { config: RedditRadarConfig }) {
   }
 
   function handleDismiss(id: string) {
+    posthog.capture("reddit_post_dismissed");
     setPosts((prev) => (prev ?? []).filter((p) => p.id !== id));
     dismissAction(id);
   }
 
   async function handleCopy(text: string) {
     await navigator.clipboard.writeText(text);
+    posthog.capture("reddit_draft_copied");
+  }
+
+  function handleConfigSave(formData: FormData) {
+    posthog.capture("reddit_radar_config_saved");
+    saveConfigAction(formData);
+  }
+
+  function handleScan(formData: FormData) {
+    posthog.capture("reddit_radar_scan_requested");
+    runScan(formData);
   }
 
   return (
@@ -68,7 +81,7 @@ export function RedditRadarPanel({ config }: { config: RedditRadarConfig }) {
           <CardContent>
             <form
               key={JSON.stringify(config)}
-              action={saveConfigAction}
+              action={handleConfigSave}
               className="flex flex-col gap-4"
             >
               <div className="grid grid-cols-2 gap-4">
@@ -213,7 +226,7 @@ export function RedditRadarPanel({ config }: { config: RedditRadarConfig }) {
       </TabsContent>
 
       <TabsContent value="scan">
-        <form action={runScan} className="flex gap-2 mb-4">
+        <form action={handleScan} className="flex gap-2 mb-4">
           <Input
             name="hours"
             type="number"
