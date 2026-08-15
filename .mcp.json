@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "donna-cmo-reel-analyzer": {
+      "command": "npx",
+      "args": ["tsx", "mcp/reel-analyzer/index.ts"]
+    }
+  }
+}
