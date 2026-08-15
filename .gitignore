@@ -48,6 +48,10 @@ next-env.d.ts
 /CLAUDE.md
 /PROJECT.md
 
+# third-party design reference export (informs our own implementation,
+# not ours to redistribute) - see DESIGN.md's origin in decisions log
+/DESIGN.md
+
 # python tool folders
 __pycache__/
 *.pyc
