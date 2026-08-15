@@ -8,6 +8,7 @@ const TOOLS = [
   { name: "Reel analyzer", href: "/tools/reel-analyzer", comingSoon: false },
   { name: "Reddit radar", href: "/tools/reddit-radar", comingSoon: false },
   { name: "Carousel", href: "/tools/carousel", comingSoon: true },
+  { name: "Competitor ads", href: "/tools/competitor-ads", comingSoon: true },
 ];
 
 export default function DashboardPage() {

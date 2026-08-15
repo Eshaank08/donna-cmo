@@ -38,6 +38,7 @@ const navMain = [
       { title: "Reel analyzer", url: "/tools/reel-analyzer" },
       { title: "Reddit radar", url: "/tools/reddit-radar" },
       { title: "Carousel", url: "/tools/carousel" },
+      { title: "Competitor ads", url: "/tools/competitor-ads" },
     ],
   },
   {
