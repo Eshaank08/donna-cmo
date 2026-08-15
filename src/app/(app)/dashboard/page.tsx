@@ -1,12 +1,13 @@
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getAllKeys, KEY_REGISTRY } from "@/lib/keys";
 import { listJobs } from "@/lib/jobs";
 
 const TOOLS = [
-  { name: "Reel analyzer", href: "/tools/reel-analyzer" },
-  { name: "Reddit radar", href: "/tools/reddit-radar" },
-  { name: "Carousel", href: "/tools/carousel" },
+  { name: "Reel analyzer", href: "/tools/reel-analyzer", comingSoon: false },
+  { name: "Reddit radar", href: "/tools/reddit-radar", comingSoon: false },
+  { name: "Carousel", href: "/tools/carousel", comingSoon: true },
 ];
 
 export default function DashboardPage() {
@@ -35,8 +36,10 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Tools available</CardDescription>
-            <CardTitle className="text-2xl">{TOOLS.length}</CardTitle>
+            <CardDescription>Tools working</CardDescription>
+            <CardTitle className="text-2xl">
+              {TOOLS.filter((t) => !t.comingSoon).length} / {TOOLS.length}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -48,7 +51,12 @@ export default function DashboardPage() {
             <Link key={tool.href} href={tool.href}>
               <Card className="hover:border-foreground/30 transition-colors">
                 <CardHeader>
-                  <CardTitle className="text-base">{tool.name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base">{tool.name}</CardTitle>
+                    {tool.comingSoon && (
+                      <Badge variant="outline">Coming soon</Badge>
+                    )}
+                  </div>
                 </CardHeader>
               </Card>
             </Link>
