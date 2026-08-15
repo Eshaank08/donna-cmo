@@ -13,6 +13,7 @@ import {
   RadarIcon,
   ShieldCheckIcon,
   SparklesIcon,
+  XIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,9 @@ import { BlurFade } from "@/components/ui/blur-fade";
 import { MagicCard } from "@/components/ui/magic-card";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { Safari } from "@/components/ui/safari";
+import { StatCard } from "@/components/ui/stat-card";
+import { Tag } from "@/components/ui/tag";
+import { TextLink } from "@/components/ui/text-link";
 
 const REPO_URL = "https://github.com/Eshaank08/donna-cmo";
 
@@ -70,6 +74,39 @@ const GATE_ITEMS = [
   "Not overplayed",
   "You have a say",
   "Only you could write it",
+];
+
+const NOT_THIS = [
+  "Writes the post for you",
+  "Same voice as every other AI-written post",
+  "You never see the actual research",
+  "Your data lives on someone else's server",
+];
+
+const THIS_INSTEAD = [
+  "Finds the research, drafts the direction",
+  "You write the words, in your own voice",
+  "Every source is one click away",
+  "Runs on your machine, nothing locked in",
+];
+
+const FAQ = [
+  {
+    q: "Does anything here see my data?",
+    a: "No. It runs on localhost, your keys live in a local SQLite file, and nothing is sent anywhere by default.",
+  },
+  {
+    q: "What if a tool needs an API key I don't have?",
+    a: "Every tool tells you exactly which key it needs and why, right on its page. Idea gate needs none at all.",
+  },
+  {
+    q: "Can I add my own tool?",
+    a: "Yes. Each tool is a folder: a manifest, a run function, a UI panel. Drop one in and nothing else changes.",
+  },
+  {
+    q: "Is this actually free?",
+    a: "MIT licensed, no paid tier, forever. It costs nothing to run except whatever API usage you bring yourself.",
+  },
 ];
 
 function ReelVisual() {
@@ -289,6 +326,23 @@ export default function Home() {
         </BlurFade>
       </section>
 
+      {/* Honest stats, no fake traction */}
+      <BlurFade delay={0.05}>
+        <section className="bg-muted px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            <Tag className="mb-6 block text-center uppercase tracking-wide">
+              The toolkit, honestly
+            </Tag>
+            <div className="grid gap-4 sm:grid-cols-4">
+              <StatCard label="Tools working today" value={3} />
+              <StatCard label="Gates in the idea filter" value={10} />
+              <StatCard label="Keys idea gate needs" value={0} />
+              <StatCard label="Cost to run this" value={0} suffix="USD" />
+            </div>
+          </div>
+        </section>
+      </BlurFade>
+
       {/* Quote, no box, just the palette */}
       <BlurFade delay={0.05}>
         <section className="mx-auto max-w-4xl px-6 py-20">
@@ -304,151 +358,236 @@ export default function Home() {
       </BlurFade>
 
       {/* Features, one by one */}
-      <section id="tools" className="mx-auto max-w-6xl px-6 py-16">
-        <BlurFade delay={0.05}>
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-heading text-3xl sm:text-4xl">
-              How each tool actually helps
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              One shared brand profile ties them together. Fill it out once
-              and every tool reads from it.
-            </p>
-          </div>
-        </BlurFade>
+      <section id="tools" className="bg-muted px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <BlurFade delay={0.05}>
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="font-heading text-3xl sm:text-4xl">
+                How each tool actually helps
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                One shared brand profile ties them together. Fill it out once
+                and every tool reads from it.
+              </p>
+            </div>
+          </BlurFade>
 
-        <div className="mt-16 flex flex-col gap-24">
-          {FEATURES.map((feature, i) => {
-            const Icon = feature.icon;
-            const Visual = VISUALS[feature.name];
-            const reversed = i % 2 === 1;
-            return (
-              <BlurFade key={feature.name} delay={0.1}>
-                <div
-                  className={`grid items-center gap-10 sm:grid-cols-2 ${
-                    reversed ? "sm:[&>*:first-child]:order-2" : ""
-                  }`}
-                >
-                  <div>
-                    <div
-                      className={`mb-4 flex size-11 items-center justify-center rounded-full ${TINTS[feature.tint]}`}
-                    >
-                      <Icon className="size-5" />
+          <div className="mt-16 flex flex-col gap-24">
+            {FEATURES.map((feature, i) => {
+              const Icon = feature.icon;
+              const Visual = VISUALS[feature.name];
+              const reversed = i % 2 === 1;
+              return (
+                <BlurFade key={feature.name} delay={0.1}>
+                  <div
+                    className={`grid items-center gap-10 sm:grid-cols-2 ${
+                      reversed ? "sm:[&>*:first-child]:order-2" : ""
+                    }`}
+                  >
+                    <div>
+                      <div
+                        className={`mb-4 flex size-11 items-center justify-center rounded-full ${TINTS[feature.tint]}`}
+                      >
+                        <Icon className="size-5" />
+                      </div>
+                      <Badge variant="outline" className="mb-3 bg-card">
+                        {feature.name}
+                      </Badge>
+                      <h3 className="font-heading text-2xl leading-snug sm:text-3xl">
+                        {feature.tagline}
+                      </h3>
+                      <p className="mt-4 text-muted-foreground">{feature.body}</p>
                     </div>
-                    <Badge variant="outline" className="mb-3">
-                      {feature.name}
-                    </Badge>
-                    <h3 className="font-heading text-2xl leading-snug sm:text-3xl">
-                      {feature.tagline}
-                    </h3>
-                    <p className="mt-4 text-muted-foreground">{feature.body}</p>
+                    <div className="rounded-3xl bg-card p-8">
+                      <Visual />
+                    </div>
                   </div>
-                  <div className="rounded-3xl bg-muted/50 p-8">
-                    <Visual />
-                  </div>
-                </div>
-              </BlurFade>
-            );
-          })}
-        </div>
-
-        <BlurFade delay={0.1}>
-          <div className="mt-16 grid gap-4 sm:grid-cols-2">
-            {COMING_SOON.map((tool) => (
-              <div
-                key={tool.name}
-                className="rounded-2xl bg-card p-6"
-              >
-                <div className="mb-2 flex items-center gap-2">
-                  <h3 className="font-medium">{tool.name}</h3>
-                  <Badge variant="outline">Coming soon</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {tool.description}
-                </p>
-              </div>
-            ))}
+                </BlurFade>
+              );
+            })}
           </div>
-        </BlurFade>
+
+          <BlurFade delay={0.1}>
+            <div className="mt-16 grid gap-4 sm:grid-cols-2">
+              {COMING_SOON.map((tool) => (
+                <div key={tool.name} className="rounded-2xl bg-card p-6">
+                  <div className="mb-2 flex items-center gap-2">
+                    <h3 className="font-medium">{tool.name}</h3>
+                    <Badge variant="outline">Coming soon</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {tool.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </BlurFade>
+        </div>
+      </section>
+
+      {/* Why this, not another AI marketing tool */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-5xl">
+          <BlurFade delay={0.05}>
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="font-heading text-3xl sm:text-4xl">
+                Why not just use an AI marketing tool
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Because most of them are solving a different problem than
+                you actually have.
+              </p>
+            </div>
+          </BlurFade>
+
+          <div className="mt-12 grid gap-5 sm:grid-cols-2">
+            <BlurFade delay={0.1}>
+              <div className="h-full rounded-2xl bg-card p-8">
+                <Tag className="mb-4 block">Most AI marketing tools</Tag>
+                <ul className="flex flex-col gap-3">
+                  {NOT_THIS.map((line) => (
+                    <li key={line} className="flex items-start gap-2 text-sm">
+                      <XIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                      <span className="text-muted-foreground">{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </BlurFade>
+            <BlurFade delay={0.15}>
+              <div className="h-full rounded-2xl bg-card p-8">
+                <Tag className="mb-4 block text-[#5d2a1a] dark:text-[#f3d9c4]">
+                  This toolkit
+                </Tag>
+                <ul className="flex flex-col gap-3">
+                  {THIS_INSTEAD.map((line) => (
+                    <li key={line} className="flex items-start gap-2 text-sm">
+                      <CheckIcon className="mt-0.5 size-4 shrink-0 text-[#5d2a1a] dark:text-[#f3d9c4]" />
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </BlurFade>
+          </div>
+        </div>
       </section>
 
       {/* Get started */}
-      <section id="get-started" className="mx-auto max-w-6xl px-6 pb-28">
-        <BlurFade delay={0.05}>
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-heading text-3xl sm:text-4xl">
-              Three ways to run it
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Always self-hosted. Always your own keys. We never see your
-              data, because it never leaves your machine.
-            </p>
+      <section id="get-started" className="bg-muted px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <BlurFade delay={0.05}>
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="font-heading text-3xl sm:text-4xl">
+                Three ways to run it
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Always self-hosted. Always your own keys. We never see your
+                data, because it never leaves your machine.
+              </p>
+            </div>
+          </BlurFade>
+
+          <div className="mt-12 grid gap-5 sm:grid-cols-3">
+            <BlurFade delay={0.1}>
+              <MagicCard className="h-full rounded-2xl bg-card">
+                <div className="p-6">
+                  <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                    <SparklesIcon className="size-4" />
+                  </div>
+                  <h3 className="font-medium">Claude-built</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Clone the repo, open it in Claude Code (or any coding
+                    agent), and say &ldquo;set this up and run it
+                    locally.&rdquo; It installs everything and walks you
+                    through your API keys.
+                  </p>
+                </div>
+              </MagicCard>
+            </BlurFade>
+            <BlurFade delay={0.15}>
+              <MagicCard className="h-full rounded-2xl bg-card">
+                <div className="p-6">
+                  <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                    <MonitorIcon className="size-4" />
+                  </div>
+                  <h3 className="font-medium">Self-built</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <code className="text-xs">npm install</code>,{" "}
+                    <code className="text-xs">
+                      pip install -r requirements.txt
+                    </code>{" "}
+                    in the tool folders that need it, then{" "}
+                    <code className="text-xs">npm run dev</code>. Full steps
+                    in the README.
+                  </p>
+                </div>
+              </MagicCard>
+            </BlurFade>
+            <BlurFade delay={0.2}>
+              <MagicCard className="h-full rounded-2xl bg-card">
+                <div className="p-6">
+                  <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                    <KeyRoundIcon className="size-4" />
+                  </div>
+                  <h3 className="font-medium">Self-hosted, always</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    There is no hosted version. It runs on localhost, your
+                    keys live in a local SQLite file, and nothing here sends
+                    or posts without you.
+                  </p>
+                </div>
+              </MagicCard>
+            </BlurFade>
           </div>
-        </BlurFade>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-3">
-          <BlurFade delay={0.1}>
-            <MagicCard className="rounded-2xl bg-card">
-              <div className="p-6">
-                <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-                  <SparklesIcon className="size-4" />
-                </div>
-                <h3 className="font-medium">Claude-built</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Clone the repo, open it in Claude Code (or any coding
-                  agent), and say &ldquo;set this up and run it locally.&rdquo;
-                  It installs everything and walks you through your API keys.
-                </p>
-              </div>
-            </MagicCard>
-          </BlurFade>
-          <BlurFade delay={0.15}>
-            <MagicCard className="rounded-2xl bg-card">
-              <div className="p-6">
-                <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-                  <MonitorIcon className="size-4" />
-                </div>
-                <h3 className="font-medium">Self-built</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  <code className="text-xs">npm install</code>,{" "}
-                  <code className="text-xs">
-                    pip install -r requirements.txt
-                  </code>{" "}
-                  in the tool folders that need it, then{" "}
-                  <code className="text-xs">npm run dev</code>. Full steps in
-                  the README.
-                </p>
-              </div>
-            </MagicCard>
-          </BlurFade>
-          <BlurFade delay={0.2}>
-            <MagicCard className="rounded-2xl bg-card">
-              <div className="p-6">
-                <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-                  <KeyRoundIcon className="size-4" />
-                </div>
-                <h3 className="font-medium">Self-hosted, always</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  There is no hosted version. It runs on localhost, your keys
-                  live in a local SQLite file, and nothing here sends or
-                  posts without you.
-                </p>
-              </div>
-            </MagicCard>
-          </BlurFade>
+          <div className="mt-10 flex justify-center">
+            <Button
+              size="lg"
+              nativeButton={false}
+              render={
+                <a href={REPO_URL} target="_blank" rel="noopener noreferrer" />
+              }
+            >
+              Clone on GitHub
+              <ArrowRightIcon />
+            </Button>
+          </div>
         </div>
+      </section>
 
-        <div className="mt-10 flex justify-center">
-          <Button
-            size="lg"
-            nativeButton={false}
-            render={
-              <a href={REPO_URL} target="_blank" rel="noopener noreferrer" />
-            }
-          >
-            Clone on GitHub
-            <ArrowRightIcon />
-          </Button>
+      {/* FAQ */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-3xl">
+          <BlurFade delay={0.05}>
+            <h2 className="font-heading text-center text-3xl sm:text-4xl">
+              Questions people actually ask
+            </h2>
+          </BlurFade>
+          <div className="mt-12 flex flex-col gap-6">
+            {FAQ.map((item, i) => (
+              <BlurFade key={item.q} delay={0.05 + i * 0.05}>
+                <div className="rounded-2xl bg-card p-6">
+                  <h3 className="font-medium">{item.q}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {item.a}
+                  </p>
+                </div>
+              </BlurFade>
+            ))}
+          </div>
+          <BlurFade delay={0.3}>
+            <div className="mt-8 text-center">
+              <TextLink
+                href={`${REPO_URL}#readme`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="justify-center text-muted-foreground"
+              >
+                Everything else is in the README
+              </TextLink>
+            </div>
+          </BlurFade>
         </div>
       </section>
 

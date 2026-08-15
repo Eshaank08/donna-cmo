@@ -56,36 +56,40 @@
 }
 
 :root {
-  --background: #ffffff;
+  /* Warm cream canvas, not stark white - white becomes the elevated
+     surface that floats on top of it (cards, popovers), matching the
+     "paper canvas + white elevated card" pattern across every one of
+     the reference systems we pulled from except pure Steep. */
+  --background: #f6f4f0;
   --foreground: #17191c;
-  --card: #f2f2f3;
+  --card: #ffffff;
   --card-foreground: #17191c;
   --popover: #ffffff;
   --popover-foreground: #17191c;
   --primary: #17191c;
   --primary-foreground: #ffffff;
-  --secondary: #f2f2f3;
+  --secondary: #efece4;
   --secondary-foreground: #17191c;
-  --muted: #fafafb;
+  --muted: #efece4;
   --muted-foreground: #777b86;
-  --accent: #f2f2f3;
+  --accent: #efece4;
   --accent-foreground: #17191c;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #ececec;
-  --input: #ececec;
+  --border: #e5e1d8;
+  --input: #e5e1d8;
   --ring: #979799;
   --chart-1: #17191c;
   --chart-2: #5d2a1a;
   --chart-3: #777b86;
   --chart-4: #979799;
   --chart-5: #a3a6af;
-  --sidebar: #fafafb;
+  --sidebar: #efece4;
   --sidebar-foreground: #17191c;
   --sidebar-primary: #17191c;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f2f2f3;
+  --sidebar-accent: #ffffff;
   --sidebar-accent-foreground: #17191c;
-  --sidebar-border: #ececec;
+  --sidebar-border: #e5e1d8;
   --sidebar-ring: #979799;
 
   /* rare editorial callout - one per page, never the generic hover accent */
