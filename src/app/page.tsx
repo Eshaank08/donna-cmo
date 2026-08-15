@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { motion } from "motion/react";
 import {
   ArrowRightIcon,
+  ArrowUpIcon,
   CheckIcon,
   ClapperboardIcon,
   KeyRoundIcon,
@@ -21,10 +22,19 @@ import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { MagicCard } from "@/components/ui/magic-card";
 import { NumberTicker } from "@/components/ui/number-ticker";
+import { ReelAnalyzerDemo } from "@/components/ui/reel-analyzer-demo";
+import { RedditRadarDemo } from "@/components/ui/reddit-radar-demo";
 import { Safari } from "@/components/ui/safari";
 import { StatCard } from "@/components/ui/stat-card";
 import { Tag } from "@/components/ui/tag";
 import { TextLink } from "@/components/ui/text-link";
+
+const NAV_LINKS = [
+  { label: "Tools", href: "#tools" },
+  { label: "Why", href: "#why" },
+  { label: "Get started", href: "#get-started" },
+  { label: "FAQ", href: "#faq" },
+] as const;
 
 const REPO_URL = "https://github.com/Eshaank08/donna-cmo";
 
@@ -109,50 +119,6 @@ const FAQ = [
   },
 ];
 
-function ReelVisual() {
-  return (
-    <div className="flex h-64 items-end justify-center gap-3">
-      {[0, 1, 2, 3, 4].map((i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ delay: i * 0.1, type: "spring", stiffness: 200, damping: 20 }}
-          className={`w-14 rounded-xl ${TINTS.peach}`}
-          style={{ height: 90 + (i % 3) * 30 }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function RadarVisual() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ type: "spring", stiffness: 180, damping: 20 }}
-      className="mx-auto flex max-w-xs flex-col gap-2 rounded-2xl bg-white p-5 text-[#17191c]"
-      style={{ boxShadow: "var(--shadow-floating)" }}
-    >
-      <div className="flex items-center gap-2">
-        <span className="rounded-full border border-[#ececec] px-2 py-0.5 text-xs text-[#777b86]">
-          r/SaaS
-        </span>
-        <span className="text-xs font-medium text-[#1f425c]">
-          <NumberTicker value={7.5} decimalPlaces={1} />
-        </span>
-      </div>
-      <p className="text-sm leading-snug">
-        &ldquo;Anyone found a good alternative for this? Been struggling for
-        weeks.&rdquo;
-      </p>
-    </motion.div>
-  );
-}
-
 function GateVisual() {
   return (
     <div className="mx-auto flex max-w-xs flex-col gap-2">
@@ -191,8 +157,8 @@ function GateVisual() {
 }
 
 const VISUALS = {
-  "Reel analyzer": ReelVisual,
-  "Reddit radar": RadarVisual,
+  "Reel analyzer": ReelAnalyzerDemo,
+  "Reddit radar": RedditRadarDemo,
   "Idea gate": GateVisual,
 } as const;
 
@@ -202,35 +168,34 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4 md:grid md:grid-cols-[1fr_auto_1fr]">
+          <div className="flex items-center gap-2 justify-self-start">
             <div className="flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <MegaphoneIcon className="size-4" />
             </div>
             <span className="text-base font-medium">Donna CMO</span>
           </div>
-          <div className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
-            <Link href="#tools" className="hover:text-foreground">
-              Tools
-            </Link>
-            <Link href="#get-started" className="hover:text-foreground">
-              Get started
-            </Link>
-            <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-foreground"
-            >
-              GitHub
-            </a>
+          <div className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
+            {NAV_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className="hover:text-foreground">
+                {link.label}
+              </Link>
+            ))}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4 justify-self-end">
             <AnimatedThemeToggler
               theme={resolvedTheme === "dark" ? "dark" : "light"}
               onThemeChange={setTheme}
               className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
             />
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline"
+            >
+              GitHub
+            </a>
             <Button
               size="sm"
               nativeButton={false}
@@ -255,18 +220,18 @@ export default function Home() {
         />
         <BlurFade duration={0.6}>
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="font-heading text-4xl leading-[1.15] tracking-tight sm:text-6xl">
+            <h1 className="font-heading text-4xl leading-[1.15] tracking-[-0.02em] sm:text-6xl">
               Tools that help you do marketing.
               <br />
               <span className="italic">Not tools that do it for you.</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+            <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
               Marketing can&apos;t be prompted. It has to be done. An
               open-source toolkit that finds, analyses, and prepares. You
               always do the talking. Runs on your own machine, your own API
               keys, nothing hosted by us.
             </p>
-            <div className="mt-8 flex items-center justify-center gap-3">
+            <div className="mt-8 flex items-center justify-center gap-5">
               <Button
                 size="lg"
                 nativeButton={false}
@@ -276,14 +241,12 @@ export default function Home() {
               >
                 Clone on GitHub
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                nativeButton={false}
-                render={<Link href="#tools" />}
+              <Link
+                href="#tools"
+                className="text-sm font-medium hover:underline underline-offset-4"
               >
                 See the tools
-              </Button>
+              </Link>
             </div>
           </div>
         </BlurFade>
@@ -297,16 +260,25 @@ export default function Home() {
             />
 
             <div
-              className="absolute -left-6 -bottom-8 hidden w-56 rounded-[20px] bg-white p-4 text-[#17191c] sm:block"
+              className="absolute -left-4 -top-6 hidden w-48 rounded-[20px] bg-white p-4 text-[#17191c] sm:block"
               style={{ boxShadow: "var(--shadow-floating)" }}
             >
-              <div className="mb-2 flex items-center gap-2">
-                <Badge className="bg-[#17191c] text-white">YES</Badge>
-                <span className="text-xs text-[#777b86]">Idea gate</span>
+              <span className="text-xs text-[#777b86]">Reddit radar</span>
+              <div className="mt-1 flex items-baseline gap-1">
+                <NumberTicker
+                  value={38}
+                  className="text-2xl font-medium text-[#17191c]"
+                />
+                <span className="text-xs text-[#777b86]">posts found</span>
               </div>
-              <p className="text-sm leading-snug">
-                &ldquo;Show the exact 403 I hit building Reddit radar.&rdquo;
-              </p>
+              <div className="mt-2 flex gap-1">
+                <span className="rounded-full border border-[#ececec] px-2 py-0.5 text-[10px] text-[#777b86]">
+                  r/SaaS
+                </span>
+                <span className="rounded-full border border-[#ececec] px-2 py-0.5 text-[10px] text-[#777b86]">
+                  r/startups
+                </span>
+              </div>
             </div>
 
             <div
@@ -322,13 +294,40 @@ export default function Home() {
                 <span className="text-xs text-[#777b86]">likes</span>
               </div>
             </div>
+
+            <div
+              className="absolute -left-6 -bottom-8 hidden w-56 rounded-[20px] bg-white p-4 text-[#17191c] sm:block"
+              style={{ boxShadow: "var(--shadow-floating)" }}
+            >
+              <div className="mb-2 flex items-center gap-2">
+                <Badge className="bg-[#17191c] text-white">YES</Badge>
+                <span className="text-xs text-[#777b86]">Idea gate</span>
+              </div>
+              <p className="text-sm leading-snug">
+                &ldquo;Show the exact 403 I hit building Reddit radar.&rdquo;
+              </p>
+            </div>
+
+            <div
+              className="absolute -bottom-10 left-1/2 hidden w-64 -translate-x-1/2 rounded-2xl bg-white px-4 py-3 sm:block"
+              style={{ boxShadow: "var(--shadow-floating)" }}
+            >
+              <div className="flex items-center gap-3">
+                <span className="min-w-0 flex-1 truncate text-sm text-[#a3a6af]">
+                  Ask anything...
+                </span>
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#17191c] text-white">
+                  <ArrowUpIcon className="size-3.5" />
+                </span>
+              </div>
+            </div>
           </div>
         </BlurFade>
       </section>
 
       {/* Honest stats, no fake traction */}
       <BlurFade delay={0.05}>
-        <section className="bg-muted px-6 py-16">
+        <section className="bg-muted px-6 py-20">
           <div className="mx-auto max-w-6xl">
             <Tag className="mb-6 block text-center uppercase tracking-wide">
               The toolkit, honestly
@@ -343,10 +342,10 @@ export default function Home() {
         </section>
       </BlurFade>
 
-      {/* Quote, no box, just the palette */}
+      {/* Quote - the one editorial peach card on the page */}
       <BlurFade delay={0.05}>
         <section className="mx-auto max-w-4xl px-6 py-20">
-          <blockquote className="border-l-4 border-[#fbe1d1] pl-6 sm:pl-8">
+          <blockquote className="rounded-3xl bg-[#fbe1d1] px-8 py-10 dark:bg-[#3d2a1f] sm:px-12 sm:py-14">
             <p className="font-heading text-2xl leading-snug italic text-[#5d2a1a] dark:text-[#f3d9c4] sm:text-3xl">
               &ldquo;Every AI marketing tool on the market promises to do the
               work for you, and produces slop. This is the opposite bet: the
@@ -426,7 +425,7 @@ export default function Home() {
       </section>
 
       {/* Why this, not another AI marketing tool */}
-      <section className="px-6 py-24">
+      <section id="why" className="px-6 py-24">
         <div className="mx-auto max-w-5xl">
           <BlurFade delay={0.05}>
             <div className="mx-auto max-w-2xl text-center">
@@ -557,7 +556,7 @@ export default function Home() {
       </section>
 
       {/* FAQ */}
-      <section className="px-6 py-24">
+      <section id="faq" className="px-6 py-24">
         <div className="mx-auto max-w-3xl">
           <BlurFade delay={0.05}>
             <h2 className="font-heading text-center text-3xl sm:text-4xl">
