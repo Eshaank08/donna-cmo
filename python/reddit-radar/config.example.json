@@ -1,0 +1,26 @@
+{
+  "user_agent": "reddit-radar/0.1 (personal research; contact you@example.com)",
+  "lookback_hours": 48,
+  "min_score": 6,
+  "max_results": 30,
+  "per_sub_limit": 40,
+  "request_pause_sec": 0.6,
+  "optional_link": "",
+  "include_link_in_draft": false,
+  "intro_line": "",
+  "subreddits": [],
+  "search_queries": [],
+  "context_anchors": [],
+  "keyword_weights": {},
+  "negative_keywords": [
+    "onlyfans",
+    "crypto giveaway",
+    "hiring mods",
+    "[removed]",
+    "[deleted]",
+    "ama request"
+  ],
+  "comment_angles": {
+    "general": ""
+  }
+}

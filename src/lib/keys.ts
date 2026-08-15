@@ -34,12 +34,12 @@ export const KEY_REGISTRY = [
   {
     name: "REDDIT_CLIENT_ID",
     label: "Reddit client ID",
-    help: "From a Reddit app at reddit.com/prefs/apps (script type). Required by the Reddit radar.",
+    help: "From a \"script\" app at reddit.com/prefs/apps. Reddit blocks unauthenticated access now, so this is effectively required, not optional. Note: new app requests need Reddit's manual approval since Nov 2025 and may be denied — this is your own app, never shared.",
   },
   {
     name: "REDDIT_CLIENT_SECRET",
     label: "Reddit client secret",
-    help: "From the same Reddit app. Required by the Reddit radar.",
+    help: "From the same Reddit app.",
   },
 ] as const;
 
