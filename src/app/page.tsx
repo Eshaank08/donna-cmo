@@ -2,11 +2,16 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { motion } from "motion/react";
 import {
   ArrowRightIcon,
+  CheckIcon,
+  ClapperboardIcon,
   KeyRoundIcon,
   MegaphoneIcon,
   MonitorIcon,
+  RadarIcon,
+  ShieldCheckIcon,
   SparklesIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -19,38 +24,140 @@ import { Safari } from "@/components/ui/safari";
 
 const REPO_URL = "https://github.com/Eshaank08/donna-cmo";
 
-const TOOLS = [
+const FEATURES = [
   {
     name: "Reel analyzer",
-    description:
-      "Paste a reel link, get the transcript, caption, engagement numbers, and every frame. Learn what actually made it work.",
-    status: "Working",
+    tagline: "Learn from what's already working.",
+    body: "You always look at how other people do it. The reel analyzer lets you understand the story, the hooks, and the concept behind every reel, so you can write the best scripts yourself, without copying anyone.",
+    icon: ClapperboardIcon,
+    tint: "peach",
   },
   {
     name: "Reddit radar",
-    description:
-      "Finds people on Reddit who have the problem your product solves. Outputs real posts with context — you message them yourself.",
-    status: "Working",
+    tagline: "Find the people already asking for you.",
+    body: "Right now, somewhere, someone is describing the exact problem your product solves, in their own words. Reddit radar finds those posts for you, so you know exactly who to talk to and what to say when you do.",
+    icon: RadarIcon,
+    tint: "sky",
   },
   {
     name: "Idea gate",
-    description:
-      "A binary yes/no filter for content ideas — ten gates, no partial credit. If an idea can't clear every gate, it doesn't get made.",
-    status: "Working",
+    tagline: "Only make the ideas worth making.",
+    body: "Not every idea deserves a script. Idea gate walks every idea through ten honest questions before you film a single second, so the only things you make are the ones only you could have made.",
+    icon: ShieldCheckIcon,
+    tint: "sage",
   },
+] as const;
+
+const TINTS = {
+  peach: "bg-[#fbe1d1] text-[#5d2a1a] dark:bg-[#3d2a1f] dark:text-[#f3d9c4]",
+  sky: "bg-[#dbe6f0] text-[#1f425c] dark:bg-[#1c2a35] dark:text-[#bcd8ec]",
+  sage: "bg-[#dfe9d8] text-[#31481f] dark:bg-[#24301e] dark:text-[#c9dcb8]",
+} as const;
+
+const COMING_SOON = [
   {
     name: "Carousel",
-    description:
-      "Brandbook + topic → finished carousel slides, ready to post.",
-    status: "Coming soon",
+    description: "Brandbook and topic in, finished carousel slides out, ready to post.",
   },
   {
     name: "Competitor ads",
-    description:
-      "See what ads any competitor is running — creative, copy, targeting, reach — via Meta's public Ads Library.",
-    status: "Coming soon",
+    description: "See what ads any competitor is running: creative, copy, targeting, reach.",
   },
 ];
+
+const GATE_ITEMS = [
+  "Relevant right now",
+  "Not overplayed",
+  "You have a say",
+  "Only you could write it",
+];
+
+function ReelVisual() {
+  return (
+    <div className="flex h-64 items-end justify-center gap-3">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ delay: i * 0.1, type: "spring", stiffness: 200, damping: 20 }}
+          className={`w-14 rounded-xl ${TINTS.peach}`}
+          style={{ height: 90 + (i % 3) * 30 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function RadarVisual() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ type: "spring", stiffness: 180, damping: 20 }}
+      className="mx-auto flex max-w-xs flex-col gap-2 rounded-2xl bg-white p-5 text-[#17191c]"
+      style={{ boxShadow: "var(--shadow-floating)" }}
+    >
+      <div className="flex items-center gap-2">
+        <span className="rounded-full border border-[#ececec] px-2 py-0.5 text-xs text-[#777b86]">
+          r/SaaS
+        </span>
+        <span className="text-xs font-medium text-[#1f425c]">
+          <NumberTicker value={7.5} decimalPlaces={1} />
+        </span>
+      </div>
+      <p className="text-sm leading-snug">
+        &ldquo;Anyone found a good alternative for this? Been struggling for
+        weeks.&rdquo;
+      </p>
+    </motion.div>
+  );
+}
+
+function GateVisual() {
+  return (
+    <div className="mx-auto flex max-w-xs flex-col gap-2">
+      {GATE_ITEMS.map((item, i) => (
+        <motion.div
+          key={item}
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ delay: i * 0.15 }}
+          className="flex items-center gap-2 rounded-xl bg-card px-4 py-2.5 text-sm"
+        >
+          <motion.span
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ delay: i * 0.15 + 0.2, type: "spring", stiffness: 300 }}
+            className={`flex size-5 shrink-0 items-center justify-center rounded-full ${TINTS.sage}`}
+          >
+            <CheckIcon className="size-3" />
+          </motion.span>
+          {item}
+        </motion.div>
+      ))}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.7 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ delay: GATE_ITEMS.length * 0.15 + 0.1, type: "spring", stiffness: 260, damping: 18 }}
+        className="mt-1 self-center"
+      >
+        <Badge className="bg-[#17191c] px-4 py-1 text-sm text-white">YES</Badge>
+      </motion.div>
+    </div>
+  );
+}
+
+const VISUALS = {
+  "Reel analyzer": ReelVisual,
+  "Reddit radar": RadarVisual,
+  "Idea gate": GateVisual,
+} as const;
 
 export default function Home() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -118,7 +225,7 @@ export default function Home() {
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
               Marketing can&apos;t be prompted. It has to be done. An
-              open-source toolkit that finds, analyses, and prepares — you
+              open-source toolkit that finds, analyses, and prepares. You
               always do the talking. Runs on your own machine, your own API
               keys, nothing hosted by us.
             </p>
@@ -182,52 +289,87 @@ export default function Home() {
         </BlurFade>
       </section>
 
-      {/* Editorial callout */}
+      {/* Quote, no box, just the palette */}
       <BlurFade delay={0.05}>
-        <section className="mx-auto max-w-6xl px-6 py-24">
-          <div className="rounded-2xl bg-callout px-8 py-12 text-callout-foreground sm:px-16">
-            <p className="font-heading text-2xl leading-snug sm:text-3xl">
-              Every AI marketing tool on the market promises to do the work
-              for you, and produces slop. This is the opposite bet: the tool
-              does the tedious, searchable, repeatable part. You do the part
-              that needs judgement.
+        <section className="mx-auto max-w-4xl px-6 py-20">
+          <blockquote className="border-l-4 border-[#fbe1d1] pl-6 sm:pl-8">
+            <p className="font-heading text-2xl leading-snug italic text-[#5d2a1a] dark:text-[#f3d9c4] sm:text-3xl">
+              &ldquo;Every AI marketing tool on the market promises to do the
+              work for you, and produces slop. This is the opposite bet: the
+              tool does the tedious, searchable, repeatable part. You do the
+              part that needs judgement.&rdquo;
             </p>
-          </div>
+          </blockquote>
         </section>
       </BlurFade>
 
-      {/* Tools */}
-      <section id="tools" className="mx-auto max-w-6xl px-6 pb-24">
+      {/* Features, one by one */}
+      <section id="tools" className="mx-auto max-w-6xl px-6 py-16">
         <BlurFade delay={0.05}>
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-heading text-3xl sm:text-4xl">The tools</h2>
+            <h2 className="font-heading text-3xl sm:text-4xl">
+              How each tool actually helps
+            </h2>
             <p className="mt-3 text-muted-foreground">
-              One shared brand profile ties them together — fill it out once,
-              every tool reads from it.
+              One shared brand profile ties them together. Fill it out once
+              and every tool reads from it.
             </p>
           </div>
         </BlurFade>
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {TOOLS.map((tool, i) => (
-            <BlurFade key={tool.name} delay={0.05 + i * 0.05}>
-              <MagicCard className="rounded-2xl bg-card">
-                <div className="p-6">
-                  <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-medium">{tool.name}</h3>
-                    <Badge
-                      variant={tool.status === "Working" ? "default" : "outline"}
+
+        <div className="mt-16 flex flex-col gap-24">
+          {FEATURES.map((feature, i) => {
+            const Icon = feature.icon;
+            const Visual = VISUALS[feature.name];
+            const reversed = i % 2 === 1;
+            return (
+              <BlurFade key={feature.name} delay={0.1}>
+                <div
+                  className={`grid items-center gap-10 sm:grid-cols-2 ${
+                    reversed ? "sm:[&>*:first-child]:order-2" : ""
+                  }`}
+                >
+                  <div>
+                    <div
+                      className={`mb-4 flex size-11 items-center justify-center rounded-full ${TINTS[feature.tint]}`}
                     >
-                      {tool.status}
+                      <Icon className="size-5" />
+                    </div>
+                    <Badge variant="outline" className="mb-3">
+                      {feature.name}
                     </Badge>
+                    <h3 className="font-heading text-2xl leading-snug sm:text-3xl">
+                      {feature.tagline}
+                    </h3>
+                    <p className="mt-4 text-muted-foreground">{feature.body}</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {tool.description}
-                  </p>
+                  <div className="rounded-3xl bg-muted/50 p-8">
+                    <Visual />
+                  </div>
                 </div>
-              </MagicCard>
-            </BlurFade>
-          ))}
+              </BlurFade>
+            );
+          })}
         </div>
+
+        <BlurFade delay={0.1}>
+          <div className="mt-16 grid gap-4 sm:grid-cols-2">
+            {COMING_SOON.map((tool) => (
+              <div
+                key={tool.name}
+                className="rounded-2xl bg-card p-6"
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <h3 className="font-medium">{tool.name}</h3>
+                  <Badge variant="outline">Coming soon</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {tool.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </BlurFade>
       </section>
 
       {/* Get started */}
@@ -246,45 +388,53 @@ export default function Home() {
 
         <div className="mt-12 grid gap-5 sm:grid-cols-3">
           <BlurFade delay={0.1}>
-            <div className="rounded-2xl bg-card p-6">
-              <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-                <SparklesIcon className="size-4" />
+            <MagicCard className="rounded-2xl bg-card">
+              <div className="p-6">
+                <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                  <SparklesIcon className="size-4" />
+                </div>
+                <h3 className="font-medium">Claude-built</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Clone the repo, open it in Claude Code (or any coding
+                  agent), and say &ldquo;set this up and run it locally.&rdquo;
+                  It installs everything and walks you through your API keys.
+                </p>
               </div>
-              <h3 className="font-medium">Claude-built</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Clone the repo, open it in Claude Code (or any coding agent),
-                and say &ldquo;set this up and run it locally.&rdquo; It
-                installs everything and walks you through your API keys.
-              </p>
-            </div>
+            </MagicCard>
           </BlurFade>
           <BlurFade delay={0.15}>
-            <div className="rounded-2xl bg-card p-6">
-              <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-                <MonitorIcon className="size-4" />
+            <MagicCard className="rounded-2xl bg-card">
+              <div className="p-6">
+                <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                  <MonitorIcon className="size-4" />
+                </div>
+                <h3 className="font-medium">Self-built</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  <code className="text-xs">npm install</code>,{" "}
+                  <code className="text-xs">
+                    pip install -r requirements.txt
+                  </code>{" "}
+                  in the tool folders that need it, then{" "}
+                  <code className="text-xs">npm run dev</code>. Full steps in
+                  the README.
+                </p>
               </div>
-              <h3 className="font-medium">Self-built</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                <code className="text-xs">npm install</code>,{" "}
-                <code className="text-xs">pip install -r requirements.txt</code>{" "}
-                in the tool folders that need it, then{" "}
-                <code className="text-xs">npm run dev</code>. Full steps in
-                the README.
-              </p>
-            </div>
+            </MagicCard>
           </BlurFade>
           <BlurFade delay={0.2}>
-            <div className="rounded-2xl bg-card p-6">
-              <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-                <KeyRoundIcon className="size-4" />
+            <MagicCard className="rounded-2xl bg-card">
+              <div className="p-6">
+                <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                  <KeyRoundIcon className="size-4" />
+                </div>
+                <h3 className="font-medium">Self-hosted, always</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  There is no hosted version. It runs on localhost, your keys
+                  live in a local SQLite file, and nothing here sends or
+                  posts without you.
+                </p>
               </div>
-              <h3 className="font-medium">Self-hosted, always</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                There is no hosted version. It runs on localhost, your keys
-                live in a local SQLite file, and nothing here sends or posts
-                without you.
-              </p>
-            </div>
+            </MagicCard>
           </BlurFade>
         </div>
 
