@@ -39,6 +39,7 @@ const navMain = [
       { title: "Reddit radar", url: "/tools/reddit-radar" },
       { title: "Carousel", url: "/tools/carousel" },
       { title: "Competitor ads", url: "/tools/competitor-ads" },
+      { title: "Idea gate", url: "/tools/idea-gate" },
     ],
   },
   {

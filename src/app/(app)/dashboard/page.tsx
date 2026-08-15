@@ -9,6 +9,7 @@ const TOOLS = [
   { name: "Reddit radar", href: "/tools/reddit-radar", comingSoon: false },
   { name: "Carousel", href: "/tools/carousel", comingSoon: true },
   { name: "Competitor ads", href: "/tools/competitor-ads", comingSoon: true },
+  { name: "Idea gate", href: "/tools/idea-gate", comingSoon: false },
 ];
 
 export default function DashboardPage() {

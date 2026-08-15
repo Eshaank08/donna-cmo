@@ -43,6 +43,22 @@ function createDb() {
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS idea_gate_config (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      hard_boundaries TEXT NOT NULL DEFAULT '[]',
+      fingerprint_description TEXT,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS idea_checks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      idea_text TEXT NOT NULL,
+      hard_boundary_hit INTEGER NOT NULL DEFAULT 0,
+      gates TEXT NOT NULL DEFAULT '[]',
+      verdict TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
   return db;
 }
