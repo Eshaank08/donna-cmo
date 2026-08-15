@@ -10,7 +10,6 @@ if (!fs.existsSync(DATA_DIR)) {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __donnaCmoDb: Database.Database | undefined;
 }
 
