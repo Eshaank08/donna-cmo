@@ -1,69 +1,303 @@
-import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowRightIcon,
+  KeyRoundIcon,
+  MegaphoneIcon,
+  MonitorIcon,
+  SparklesIcon,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+const REPO_URL = "https://github.com/Eshaank08/donna-cmo";
+
+const TOOLS = [
+  {
+    name: "Reel analyzer",
+    description:
+      "Paste a reel link, get the transcript, caption, engagement numbers, and every frame. Learn what actually made it work.",
+    status: "Working",
+  },
+  {
+    name: "Reddit radar",
+    description:
+      "Finds people on Reddit who have the problem your product solves. Outputs real posts with context — you message them yourself.",
+    status: "Working",
+  },
+  {
+    name: "Idea gate",
+    description:
+      "A binary yes/no filter for content ideas — ten gates, no partial credit. If an idea can't clear every gate, it doesn't get made.",
+    status: "Working",
+  },
+  {
+    name: "Carousel",
+    description:
+      "Brandbook + topic → finished carousel slides, ready to post.",
+    status: "Coming soon",
+  },
+  {
+    name: "Competitor ads",
+    description:
+      "See what ads any competitor is running — creative, copy, targeting, reach — via Meta's public Ads Library.",
+    status: "Coming soon",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="min-h-screen bg-background text-foreground">
+      <nav className="border-b border-border">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2">
+            <div className="flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <MegaphoneIcon className="size-4" />
+            </div>
+            <span className="text-base font-medium">Donna CMO</span>
+          </div>
+          <div className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
+            <Link href="#tools" className="hover:text-foreground">
+              Tools
+            </Link>
+            <Link href="#get-started" className="hover:text-foreground">
+              Get started
+            </Link>
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
+              GitHub
+            </a>
+          </div>
+          <Button
+            size="sm"
+            nativeButton={false}
+            render={
+              <a href={REPO_URL} target="_blank" rel="noopener noreferrer" />
+            }
+          >
+            Clone the repo
+          </Button>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="relative mx-auto max-w-6xl px-6 pt-20 pb-32 sm:pt-28">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="font-heading text-4xl leading-[1.15] tracking-tight sm:text-6xl">
+            Tools that help you do marketing.
+            <br />
+            <span className="italic">Not tools that do it for you.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+            Marketing can&apos;t be prompted. It has to be done. An
+            open-source toolkit that finds, analyses, and prepares — you
+            always do the talking. Runs on your own machine, your own API
+            keys, nothing hosted by us.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <Button
+              size="lg"
+              nativeButton={false}
+              render={
+                <a href={REPO_URL} target="_blank" rel="noopener noreferrer" />
+              }
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Clone on GitHub
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="#tools" />}
             >
-              Learning
-            </a>{" "}
-            center.
+              See the tools
+            </Button>
+          </div>
+        </div>
+
+        {/* Floating product artifacts */}
+        <div className="relative mx-auto mt-20 hidden max-w-4xl sm:block">
+          <div
+            className="absolute -left-4 top-0 w-64 rounded-[20px] bg-white p-4 text-[#17191c]"
+            style={{ boxShadow: "var(--shadow-floating)" }}
+          >
+            <div className="mb-2 flex items-center gap-2">
+              <Badge className="bg-[#17191c] text-white">YES</Badge>
+              <span className="text-xs text-[#777b86]">Idea gate</span>
+            </div>
+            <p className="text-sm leading-snug">
+              &ldquo;Show the exact 403 I hit building Reddit radar, and how
+              I diagnosed it.&rdquo;
+            </p>
+          </div>
+
+          <div
+            className="absolute right-0 top-6 w-56 rounded-[20px] bg-white p-4 text-[#17191c]"
+            style={{ boxShadow: "var(--shadow-floating)" }}
+          >
+            <span className="text-xs text-[#777b86]">Reel analyzer</span>
+            <div className="mt-1 flex items-baseline gap-1">
+              <span className="text-2xl font-medium">19,365,417</span>
+              <span className="text-xs text-[#777b86]">likes</span>
+            </div>
+            <div className="mt-2 flex gap-3 text-xs text-[#777b86]">
+              <span>404,877,905 views</span>
+            </div>
+          </div>
+
+          <div
+            className="absolute left-1/3 top-40 w-60 rounded-[20px] bg-white p-4 text-[#17191c]"
+            style={{ boxShadow: "var(--shadow-floating)" }}
+          >
+            <div className="mb-1 flex items-center gap-2 text-xs text-[#777b86]">
+              <span className="rounded-full border border-[#ececec] px-2 py-0.5">
+                r/SaaS
+              </span>
+              <span className="font-medium text-[#5d2a1a]">7.5</span>
+            </div>
+            <p className="text-sm leading-snug">
+              &ldquo;Anyone found a good alternative to [tool] for this?
+              Been struggling for weeks.&rdquo;
+            </p>
+          </div>
+
+          <div className="h-64" />
+        </div>
+      </section>
+
+      {/* Editorial callout */}
+      <section className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="rounded-2xl bg-callout px-8 py-12 text-callout-foreground sm:px-16">
+          <p className="font-heading text-2xl leading-snug sm:text-3xl">
+            Every AI marketing tool on the market promises to do the work for
+            you, and produces slop. This is the opposite bet: the tool does
+            the tedious, searchable, repeatable part. You do the part that
+            needs judgement.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Tools */}
+      <section id="tools" className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl">The tools</h2>
+          <p className="mt-3 text-muted-foreground">
+            One shared brand profile ties them together — fill it out once,
+            every tool reads from it.
+          </p>
         </div>
-      </main>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {TOOLS.map((tool) => (
+            <div key={tool.name} className="rounded-2xl bg-card p-6">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="font-medium">{tool.name}</h3>
+                <Badge
+                  variant={tool.status === "Working" ? "default" : "outline"}
+                >
+                  {tool.status}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {tool.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Get started */}
+      <section
+        id="get-started"
+        className="mx-auto max-w-6xl px-6 pb-28"
+      >
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl">
+            Three ways to run it
+          </h2>
+          <p className="mt-3 text-muted-foreground">
+            Always self-hosted. Always your own keys. We never see your
+            data, because it never leaves your machine.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-3">
+          <div className="rounded-2xl bg-card p-6">
+            <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+              <SparklesIcon className="size-4" />
+            </div>
+            <h3 className="font-medium">Claude-built</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Clone the repo, open it in Claude Code (or any coding agent),
+              and say &ldquo;set this up and run it locally.&rdquo; It
+              installs everything and walks you through your API keys.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-card p-6">
+            <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+              <MonitorIcon className="size-4" />
+            </div>
+            <h3 className="font-medium">Self-built</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              <code className="text-xs">npm install</code>,{" "}
+              <code className="text-xs">pip install -r requirements.txt</code>{" "}
+              in the tool folders that need it, then{" "}
+              <code className="text-xs">npm run dev</code>. Full steps in
+              the README.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-card p-6">
+            <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+              <KeyRoundIcon className="size-4" />
+            </div>
+            <h3 className="font-medium">Self-hosted, always</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              There is no hosted version. It runs on localhost, your keys
+              live in a local SQLite file, and nothing here sends or posts
+              without you.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Button
+            size="lg"
+            nativeButton={false}
+            render={
+              <a href={REPO_URL} target="_blank" rel="noopener noreferrer" />
+            }
+          >
+            Clone on GitHub
+            <ArrowRightIcon />
+          </Button>
+        </div>
+      </section>
+
+      <footer className="border-t border-border">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-muted-foreground sm:flex-row">
+          <span>MIT licensed. Free, forever.</span>
+          <div className="flex items-center gap-6">
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
+              GitHub
+            </a>
+            <a
+              href={`${REPO_URL}#readme`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
+              Docs
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

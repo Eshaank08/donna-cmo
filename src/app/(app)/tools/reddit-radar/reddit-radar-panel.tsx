@@ -299,6 +299,7 @@ export function RedditRadarPanel({ config }: { config: RedditRadarConfig }) {
                 <div className="flex gap-2 flex-wrap">
                   <Button
                     variant="secondary"
+                    nativeButton={false}
                     render={
                       <a
                         href={post.reddit_url}
