@@ -8,8 +8,10 @@ import {
   ArrowUpIcon,
   CheckIcon,
   ClapperboardIcon,
+  KanbanIcon,
   KeyRoundIcon,
   MegaphoneIcon,
+  Mic2Icon,
   MonitorIcon,
   RadarIcon,
   ShieldCheckIcon,
@@ -60,12 +62,28 @@ const FEATURES = [
     icon: ShieldCheckIcon,
     tint: "sage",
   },
+  {
+    name: "Ideation board",
+    tagline: "Watch every idea move from spark to posted.",
+    body: "A simple kanban for content: idea, scripting, ready to shoot, posted. A yes from idea gate can drop straight onto the board, so nothing good gets lost in a notes app.",
+    icon: KanbanIcon,
+    tint: "butter",
+  },
+  {
+    name: "Voice",
+    tagline: "Sound like you, not like an AI wrote it.",
+    body: "Paste a few things you've actually written. It learns the patterns, the phrases, the rhythm, then rewrites generic drafts to match, so what you post still sounds like you.",
+    icon: Mic2Icon,
+    tint: "lavender",
+  },
 ] as const;
 
 const TINTS = {
   peach: "bg-[#fbe1d1] text-[#5d2a1a] dark:bg-[#3d2a1f] dark:text-[#f3d9c4]",
   sky: "bg-[#dbe6f0] text-[#1f425c] dark:bg-[#1c2a35] dark:text-[#bcd8ec]",
   sage: "bg-[#dfe9d8] text-[#31481f] dark:bg-[#24301e] dark:text-[#c9dcb8]",
+  butter: "bg-[#f5e9c8] text-[#5c4a1a] dark:bg-[#3a3018] dark:text-[#f0dfa8]",
+  lavender: "bg-[#e6dff0] text-[#3f2e5c] dark:bg-[#28203a] dark:text-[#d6c8ec]",
 } as const;
 
 const COMING_SOON = [
@@ -156,10 +174,65 @@ function GateVisual() {
   );
 }
 
+const BOARD_COLUMNS = ["Idea", "Scripting", "Posted"];
+
+function BoardVisual() {
+  return (
+    <div className="mx-auto flex max-w-sm justify-center gap-3">
+      {BOARD_COLUMNS.map((col, i) => (
+        <div key={col} className="flex w-24 flex-col gap-2">
+          <span className="text-center text-xs text-muted-foreground">{col}</span>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ delay: i * 0.25, type: "spring", stiffness: 220, damping: 22 }}
+            className={`h-14 rounded-lg ${i === 1 ? TINTS.butter : "bg-card"}`}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function VoiceVisual() {
+  return (
+    <div className="mx-auto flex max-w-sm items-center justify-center gap-3">
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        className="flex-1 rounded-xl bg-card p-4 text-xs text-muted-foreground"
+      >
+        &ldquo;We are excited to announce our new feature.&rdquo;
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 260 }}
+      >
+        <ArrowRightIcon className="size-4 text-muted-foreground" />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ delay: 0.35 }}
+        className={`flex-1 rounded-xl p-4 text-xs ${TINTS.lavender}`}
+      >
+        &ldquo;Okay, this one&apos;s actually good, we shipped it.&rdquo;
+      </motion.div>
+    </div>
+  );
+}
+
 const VISUALS = {
   "Reel analyzer": ReelAnalyzerDemo,
   "Reddit radar": RedditRadarDemo,
   "Idea gate": GateVisual,
+  "Ideation board": BoardVisual,
+  Voice: VoiceVisual,
 } as const;
 
 export default function Home() {
@@ -333,7 +406,7 @@ export default function Home() {
               The toolkit, honestly
             </Tag>
             <div className="grid gap-4 sm:grid-cols-4">
-              <StatCard label="Tools working today" value={3} />
+              <StatCard label="Tools working today" value={5} />
               <StatCard label="Gates in the idea filter" value={10} />
               <StatCard label="Keys idea gate needs" value={0} />
               <StatCard label="Cost to run this" value={0} suffix="USD" />
@@ -342,10 +415,10 @@ export default function Home() {
         </section>
       </BlurFade>
 
-      {/* Quote - the one editorial peach card on the page */}
+      {/* Quote, no box, just the palette - deliberate call, not the reference's filled card */}
       <BlurFade delay={0.05}>
         <section className="mx-auto max-w-4xl px-6 py-20">
-          <blockquote className="rounded-3xl bg-[#fbe1d1] px-8 py-10 dark:bg-[#3d2a1f] sm:px-12 sm:py-14">
+          <blockquote className="border-l-4 border-[#fbe1d1] pl-6 sm:pl-8">
             <p className="font-heading text-2xl leading-snug italic text-[#5d2a1a] dark:text-[#f3d9c4] sm:text-3xl">
               &ldquo;Every AI marketing tool on the market promises to do the
               work for you, and produces slop. This is the opposite bet: the

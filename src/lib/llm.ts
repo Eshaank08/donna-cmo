@@ -4,10 +4,14 @@
 // from a client component.
 import { getKey } from "@/lib/keys";
 
-// Reasonable current defaults. Bump these here if a provider deprecates
-// the model — nothing else in the app needs to change.
-const ANTHROPIC_MODEL = "claude-sonnet-4-5-20250929";
-const OPENAI_MODEL = "gpt-4o-mini";
+// Reasonable current defaults as of 2026-08-16. Bump these here if a
+// provider deprecates the model — nothing else in the app needs to change.
+// The Anthropic ID is a same-family model, checked directly. The OpenAI
+// ID is a best-effort guess from public pricing pages (gpt-4o-mini itself
+// is now well out of date, OpenAI has since shipped GPT-5/5.4/5.5) - worth
+// confirming against OpenAI's actual current model list before relying on it.
+const ANTHROPIC_MODEL = "claude-sonnet-5";
+const OPENAI_MODEL = "gpt-5-mini";
 
 export class LlmConfigError extends Error {}
 
