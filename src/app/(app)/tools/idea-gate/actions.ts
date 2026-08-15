@@ -8,6 +8,7 @@ import {
   type GateAnswer,
   type IdeaCheck,
 } from "@/lib/idea-gate";
+import { createCard } from "@/lib/ideation-board";
 
 function linesToArray(text: string): string[] {
   return text
@@ -51,4 +52,11 @@ export async function checkIdeaAction(
   revalidatePath("/output");
   revalidatePath("/dashboard");
   return { result };
+}
+
+export async function sendIdeaToBoardAction(ideaText: string) {
+  const title = ideaText.length > 80 ? `${ideaText.slice(0, 77)}...` : ideaText;
+  createCard(title, ideaText);
+  revalidatePath("/tools/ideation-board");
+  revalidatePath("/dashboard");
 }

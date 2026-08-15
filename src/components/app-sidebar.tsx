@@ -40,6 +40,7 @@ const navMain = [
       { title: "Carousel", url: "/tools/carousel" },
       { title: "Competitor ads", url: "/tools/competitor-ads" },
       { title: "Idea gate", url: "/tools/idea-gate" },
+      { title: "Ideation board", url: "/tools/ideation-board" },
     ],
   },
   {
