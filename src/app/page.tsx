@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import {
   ArrowRightIcon,
   KeyRoundIcon,
@@ -8,6 +11,11 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { MagicCard } from "@/components/ui/magic-card";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { Safari } from "@/components/ui/safari";
 
 const REPO_URL = "https://github.com/Eshaank08/donna-cmo";
 
@@ -45,9 +53,11 @@ const TOOLS = [
 ];
 
 export default function Home() {
+  const { resolvedTheme, setTheme } = useTheme();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <nav className="border-b border-border">
+      <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <div className="flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -71,194 +81,211 @@ export default function Home() {
               GitHub
             </a>
           </div>
-          <Button
-            size="sm"
-            nativeButton={false}
-            render={
-              <a href={REPO_URL} target="_blank" rel="noopener noreferrer" />
-            }
-          >
-            Clone the repo
-          </Button>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative mx-auto max-w-6xl px-6 pt-20 pb-32 sm:pt-28">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="font-heading text-4xl leading-[1.15] tracking-tight sm:text-6xl">
-            Tools that help you do marketing.
-            <br />
-            <span className="italic">Not tools that do it for you.</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-            Marketing can&apos;t be prompted. It has to be done. An
-            open-source toolkit that finds, analyses, and prepares — you
-            always do the talking. Runs on your own machine, your own API
-            keys, nothing hosted by us.
-          </p>
-          <div className="mt-8 flex items-center justify-center gap-3">
+          <div className="flex items-center gap-2">
+            <AnimatedThemeToggler
+              theme={resolvedTheme === "dark" ? "dark" : "light"}
+              onThemeChange={setTheme}
+              className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            />
             <Button
-              size="lg"
+              size="sm"
               nativeButton={false}
               render={
                 <a href={REPO_URL} target="_blank" rel="noopener noreferrer" />
               }
             >
-              Clone on GitHub
+              Clone the repo
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              nativeButton={false}
-              render={<Link href="#tools" />}
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="relative overflow-hidden px-6 pt-20 pb-16 sm:pt-28">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[600px] opacity-60"
+          style={{
+            background:
+              "radial-gradient(700px 340px at 20% 0%, var(--callout) 0%, transparent 60%), radial-gradient(600px 300px at 85% 10%, var(--callout) 0%, transparent 55%)",
+          }}
+        />
+        <BlurFade duration={0.6}>
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="font-heading text-4xl leading-[1.15] tracking-tight sm:text-6xl">
+              Tools that help you do marketing.
+              <br />
+              <span className="italic">Not tools that do it for you.</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+              Marketing can&apos;t be prompted. It has to be done. An
+              open-source toolkit that finds, analyses, and prepares — you
+              always do the talking. Runs on your own machine, your own API
+              keys, nothing hosted by us.
+            </p>
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <Button
+                size="lg"
+                nativeButton={false}
+                render={
+                  <a href={REPO_URL} target="_blank" rel="noopener noreferrer" />
+                }
+              >
+                Clone on GitHub
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                nativeButton={false}
+                render={<Link href="#tools" />}
+              >
+                See the tools
+              </Button>
+            </div>
+          </div>
+        </BlurFade>
+
+        <BlurFade delay={0.15} duration={0.6}>
+          <div className="relative mx-auto mt-16 max-w-4xl">
+            <Safari
+              url="localhost:3000/dashboard"
+              imageSrc="/hero-dashboard.png"
+              className="drop-shadow-[0_30px_60px_rgba(0,0,0,0.12)]"
+            />
+
+            <div
+              className="absolute -left-6 -bottom-8 hidden w-56 rounded-[20px] bg-white p-4 text-[#17191c] sm:block"
+              style={{ boxShadow: "var(--shadow-floating)" }}
             >
-              See the tools
-            </Button>
-          </div>
-        </div>
-
-        {/* Floating product artifacts */}
-        <div className="relative mx-auto mt-20 hidden max-w-4xl sm:block">
-          <div
-            className="absolute -left-4 top-0 w-64 rounded-[20px] bg-white p-4 text-[#17191c]"
-            style={{ boxShadow: "var(--shadow-floating)" }}
-          >
-            <div className="mb-2 flex items-center gap-2">
-              <Badge className="bg-[#17191c] text-white">YES</Badge>
-              <span className="text-xs text-[#777b86]">Idea gate</span>
+              <div className="mb-2 flex items-center gap-2">
+                <Badge className="bg-[#17191c] text-white">YES</Badge>
+                <span className="text-xs text-[#777b86]">Idea gate</span>
+              </div>
+              <p className="text-sm leading-snug">
+                &ldquo;Show the exact 403 I hit building Reddit radar.&rdquo;
+              </p>
             </div>
-            <p className="text-sm leading-snug">
-              &ldquo;Show the exact 403 I hit building Reddit radar, and how
-              I diagnosed it.&rdquo;
-            </p>
-          </div>
 
-          <div
-            className="absolute right-0 top-6 w-56 rounded-[20px] bg-white p-4 text-[#17191c]"
-            style={{ boxShadow: "var(--shadow-floating)" }}
-          >
-            <span className="text-xs text-[#777b86]">Reel analyzer</span>
-            <div className="mt-1 flex items-baseline gap-1">
-              <span className="text-2xl font-medium">19,365,417</span>
-              <span className="text-xs text-[#777b86]">likes</span>
-            </div>
-            <div className="mt-2 flex gap-3 text-xs text-[#777b86]">
-              <span>404,877,905 views</span>
+            <div
+              className="absolute -right-4 -top-6 hidden w-52 rounded-[20px] bg-white p-4 text-[#17191c] sm:block"
+              style={{ boxShadow: "var(--shadow-floating)" }}
+            >
+              <span className="text-xs text-[#777b86]">Reel analyzer</span>
+              <div className="mt-1 flex items-baseline gap-1">
+                <NumberTicker
+                  value={19365417}
+                  className="text-2xl font-medium text-[#17191c]"
+                />
+                <span className="text-xs text-[#777b86]">likes</span>
+              </div>
             </div>
           </div>
-
-          <div
-            className="absolute left-1/3 top-40 w-60 rounded-[20px] bg-white p-4 text-[#17191c]"
-            style={{ boxShadow: "var(--shadow-floating)" }}
-          >
-            <div className="mb-1 flex items-center gap-2 text-xs text-[#777b86]">
-              <span className="rounded-full border border-[#ececec] px-2 py-0.5">
-                r/SaaS
-              </span>
-              <span className="font-medium text-[#5d2a1a]">7.5</span>
-            </div>
-            <p className="text-sm leading-snug">
-              &ldquo;Anyone found a good alternative to [tool] for this?
-              Been struggling for weeks.&rdquo;
-            </p>
-          </div>
-
-          <div className="h-64" />
-        </div>
+        </BlurFade>
       </section>
 
       {/* Editorial callout */}
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="rounded-2xl bg-callout px-8 py-12 text-callout-foreground sm:px-16">
-          <p className="font-heading text-2xl leading-snug sm:text-3xl">
-            Every AI marketing tool on the market promises to do the work for
-            you, and produces slop. This is the opposite bet: the tool does
-            the tedious, searchable, repeatable part. You do the part that
-            needs judgement.
-          </p>
-        </div>
-      </section>
+      <BlurFade delay={0.05}>
+        <section className="mx-auto max-w-6xl px-6 py-24">
+          <div className="rounded-2xl bg-callout px-8 py-12 text-callout-foreground sm:px-16">
+            <p className="font-heading text-2xl leading-snug sm:text-3xl">
+              Every AI marketing tool on the market promises to do the work
+              for you, and produces slop. This is the opposite bet: the tool
+              does the tedious, searchable, repeatable part. You do the part
+              that needs judgement.
+            </p>
+          </div>
+        </section>
+      </BlurFade>
 
       {/* Tools */}
       <section id="tools" className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-3xl sm:text-4xl">The tools</h2>
-          <p className="mt-3 text-muted-foreground">
-            One shared brand profile ties them together — fill it out once,
-            every tool reads from it.
-          </p>
-        </div>
+        <BlurFade delay={0.05}>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-heading text-3xl sm:text-4xl">The tools</h2>
+            <p className="mt-3 text-muted-foreground">
+              One shared brand profile ties them together — fill it out once,
+              every tool reads from it.
+            </p>
+          </div>
+        </BlurFade>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {TOOLS.map((tool) => (
-            <div key={tool.name} className="rounded-2xl bg-card p-6">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="font-medium">{tool.name}</h3>
-                <Badge
-                  variant={tool.status === "Working" ? "default" : "outline"}
-                >
-                  {tool.status}
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {tool.description}
-              </p>
-            </div>
+          {TOOLS.map((tool, i) => (
+            <BlurFade key={tool.name} delay={0.05 + i * 0.05}>
+              <MagicCard className="rounded-2xl bg-card">
+                <div className="p-6">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="font-medium">{tool.name}</h3>
+                    <Badge
+                      variant={tool.status === "Working" ? "default" : "outline"}
+                    >
+                      {tool.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {tool.description}
+                  </p>
+                </div>
+              </MagicCard>
+            </BlurFade>
           ))}
         </div>
       </section>
 
       {/* Get started */}
-      <section
-        id="get-started"
-        className="mx-auto max-w-6xl px-6 pb-28"
-      >
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-3xl sm:text-4xl">
-            Three ways to run it
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Always self-hosted. Always your own keys. We never see your
-            data, because it never leaves your machine.
-          </p>
-        </div>
+      <section id="get-started" className="mx-auto max-w-6xl px-6 pb-28">
+        <BlurFade delay={0.05}>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-heading text-3xl sm:text-4xl">
+              Three ways to run it
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Always self-hosted. Always your own keys. We never see your
+              data, because it never leaves your machine.
+            </p>
+          </div>
+        </BlurFade>
 
         <div className="mt-12 grid gap-5 sm:grid-cols-3">
-          <div className="rounded-2xl bg-card p-6">
-            <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-              <SparklesIcon className="size-4" />
+          <BlurFade delay={0.1}>
+            <div className="rounded-2xl bg-card p-6">
+              <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                <SparklesIcon className="size-4" />
+              </div>
+              <h3 className="font-medium">Claude-built</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Clone the repo, open it in Claude Code (or any coding agent),
+                and say &ldquo;set this up and run it locally.&rdquo; It
+                installs everything and walks you through your API keys.
+              </p>
             </div>
-            <h3 className="font-medium">Claude-built</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Clone the repo, open it in Claude Code (or any coding agent),
-              and say &ldquo;set this up and run it locally.&rdquo; It
-              installs everything and walks you through your API keys.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-card p-6">
-            <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-              <MonitorIcon className="size-4" />
+          </BlurFade>
+          <BlurFade delay={0.15}>
+            <div className="rounded-2xl bg-card p-6">
+              <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                <MonitorIcon className="size-4" />
+              </div>
+              <h3 className="font-medium">Self-built</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                <code className="text-xs">npm install</code>,{" "}
+                <code className="text-xs">pip install -r requirements.txt</code>{" "}
+                in the tool folders that need it, then{" "}
+                <code className="text-xs">npm run dev</code>. Full steps in
+                the README.
+              </p>
             </div>
-            <h3 className="font-medium">Self-built</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              <code className="text-xs">npm install</code>,{" "}
-              <code className="text-xs">pip install -r requirements.txt</code>{" "}
-              in the tool folders that need it, then{" "}
-              <code className="text-xs">npm run dev</code>. Full steps in
-              the README.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-card p-6">
-            <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
-              <KeyRoundIcon className="size-4" />
+          </BlurFade>
+          <BlurFade delay={0.2}>
+            <div className="rounded-2xl bg-card p-6">
+              <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-background">
+                <KeyRoundIcon className="size-4" />
+              </div>
+              <h3 className="font-medium">Self-hosted, always</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                There is no hosted version. It runs on localhost, your keys
+                live in a local SQLite file, and nothing here sends or posts
+                without you.
+              </p>
             </div>
-            <h3 className="font-medium">Self-hosted, always</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              There is no hosted version. It runs on localhost, your keys
-              live in a local SQLite file, and nothing here sends or posts
-              without you.
-            </p>
-          </div>
+          </BlurFade>
         </div>
 
         <div className="mt-10 flex justify-center">
