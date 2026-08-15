@@ -41,6 +41,16 @@ export const KEY_REGISTRY = [
     label: "Reddit client secret",
     help: "From the same Reddit app.",
   },
+  {
+    name: "ANTHROPIC_API_KEY",
+    label: "Anthropic API key",
+    help: "Used by the Voice tool to analyze your writing and rewrite drafts. Preferred over OpenAI if both are set.",
+  },
+  {
+    name: "OPENAI_API_KEY",
+    label: "OpenAI API key",
+    help: "Used by the Voice tool if no Anthropic key is set.",
+  },
 ] as const;
 
 export type KeyName = (typeof KEY_REGISTRY)[number]["name"];
