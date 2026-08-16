@@ -1,82 +1,124 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getAllKeys, KEY_REGISTRY } from "@/lib/keys";
 import { listJobs } from "@/lib/jobs";
+import { listIdeaChecks } from "@/lib/idea-gate";
+import { listCards } from "@/lib/ideation-board";
+import { getVoiceProfile } from "@/lib/voice";
+import { isLlmAvailable } from "@/lib/llm";
+import { TOOLS } from "@/lib/tool-visuals";
+import { ToolIcon, StatusDot } from "@/components/tool-icon";
 
-const TOOLS = [
-  { name: "Reel analyzer", href: "/tools/reel-analyzer", comingSoon: false },
-  { name: "Reddit radar", href: "/tools/reddit-radar", comingSoon: false },
-  { name: "Carousel", href: "/tools/carousel", comingSoon: true },
-  { name: "Competitor ads", href: "/tools/competitor-ads", comingSoon: true },
-  { name: "Idea gate", href: "/tools/idea-gate", comingSoon: false },
-  { name: "Ideation board", href: "/tools/ideation-board", comingSoon: false },
-  { name: "Voice", href: "/tools/voice", comingSoon: false },
-];
+function relativeTime(sqliteDatetime: string): string {
+  const then = new Date(`${sqliteDatetime.replace(" ", "T")}Z`).getTime();
+  const minutes = Math.round((Date.now() - then) / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.round(hours / 24)}d ago`;
+}
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
   const keys = getAllKeys();
   const keysSet = KEY_REGISTRY.filter((k) => keys[k.name]).length;
   const jobs = listJobs();
+  const liveTools = TOOLS.filter((t) => !t.comingSoon);
+
+  const reelJobs = listJobs("reel-analyzer");
+  const ideaChecks = listIdeaChecks();
+  const cards = listCards();
+  const voiceProfile = getVoiceProfile();
+  const hasLlm = await isLlmAvailable();
+  const hasRedditKeys = Boolean(keys.REDDIT_CLIENT_ID && keys.REDDIT_CLIENT_SECRET);
+
+  function noteFor(slug: string): string {
+    switch (slug) {
+      case "reel-analyzer":
+        return reelJobs.length
+          ? `${reelJobs.length} run${reelJobs.length === 1 ? "" : "s"} · ${relativeTime(reelJobs[0].created_at)}`
+          : "no runs yet";
+      case "reddit-radar":
+        return hasRedditKeys ? "Reddit key set" : "needs Reddit key";
+      case "idea-gate":
+        return ideaChecks.length
+          ? `${ideaChecks.length} idea${ideaChecks.length === 1 ? "" : "s"} checked`
+          : "no ideas checked yet";
+      case "ideation-board":
+        return cards.length ? `${cards.length} card${cards.length === 1 ? "" : "s"}` : "no cards yet";
+      case "voice":
+        if (!hasLlm) return "needs LLM key or Ollama";
+        return voiceProfile ? "profile saved" : "no profile yet";
+      default:
+        return "coming soon";
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardDescription>API keys configured</CardDescription>
-            <CardTitle className="text-2xl">
-              {keysSet} / {KEY_REGISTRY.length}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Jobs run</CardDescription>
-            <CardTitle className="text-2xl">{jobs.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Tools working</CardDescription>
-            <CardTitle className="text-2xl">
-              {TOOLS.filter((t) => !t.comingSoon).length} / {TOOLS.length}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="font-heading text-2xl">Dashboard</h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          Everything here runs locally and saves to this machine as you go —
+          close it, come back later, it&apos;s still here.
+        </p>
       </div>
 
-      <div>
-        <h2 className="text-lg font-medium mb-2">Tools</h2>
-        <div className="grid gap-3 md:grid-cols-3">
-          {TOOLS.map((tool) => (
-            <Link key={tool.href} href={tool.href}>
-              <Card className="hover:border-foreground/30 transition-colors">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-base">{tool.name}</CardTitle>
-                    {tool.comingSoon && (
-                      <Badge variant="outline">Coming soon</Badge>
-                    )}
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
+      <div className="flex gap-8 pb-5 border-b">
+        <div>
+          <p className="font-heading text-[1.15rem] font-semibold tabular-nums">
+            {keysSet}/{KEY_REGISTRY.length}
+          </p>
+          <p className="text-xs text-muted-foreground">keys set</p>
+        </div>
+        <div>
+          <p className="font-heading text-[1.15rem] font-semibold tabular-nums">
+            {jobs.length}
+          </p>
+          <p className="text-xs text-muted-foreground">jobs run</p>
+        </div>
+        <div>
+          <p className="font-heading text-[1.15rem] font-semibold tabular-nums">
+            {liveTools.length}/{TOOLS.length}
+          </p>
+          <p className="text-xs text-muted-foreground">tools live</p>
         </div>
       </div>
 
       {keysSet === 0 && (
-        <p className="text-muted-foreground text-sm">
-          No API keys set yet.{" "}
-          <Link href="/settings" className="underline">
+        <div className="bg-callout text-callout-foreground rounded-2xl px-4 py-3 text-sm flex items-center justify-between gap-3">
+          <span>No API keys set yet — most tools need at least one to run.</span>
+          <Link href="/settings" className="underline underline-offset-2 shrink-0 font-medium">
             Add them in Settings
-          </Link>{" "}
-          before running a tool.
-        </p>
+          </Link>
+        </div>
       )}
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {TOOLS.map((tool) => {
+          const live = !tool.comingSoon;
+          return (
+            <Link
+              key={tool.href}
+              href={tool.href}
+              className="flex flex-col gap-2 rounded-lg border p-3.5 hover:border-foreground/25 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <ToolIcon icon={tool.icon} live={live} size="sm" />
+                <span className="text-sm font-semibold">{tool.name}</span>
+                <span className="ml-auto">
+                  <StatusDot live={live} />
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {tool.tagline}
+              </p>
+              <p className="text-xs text-muted-foreground/70 mt-0.5">
+                {noteFor(tool.slug)}
+              </p>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

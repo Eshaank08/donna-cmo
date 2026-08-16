@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import {
+  buildStatisticalVoiceProfile,
   buildVoiceProfile,
   humanizeDraft,
   type HumanizeRecord,
@@ -24,6 +25,24 @@ export async function buildProfileAction(
 
   try {
     const profile = await buildVoiceProfile(samples);
+    revalidatePath("/tools/voice");
+    return { profile };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+export async function buildStatisticalProfileAction(
+  _prevState: BuildProfileState,
+  formData: FormData
+): Promise<BuildProfileState> {
+  const samples = formData
+    .getAll("sample")
+    .map((s) => s.toString())
+    .filter((s) => s.trim().length > 0);
+
+  try {
+    const profile = buildStatisticalVoiceProfile(samples);
     revalidatePath("/tools/voice");
     return { profile };
   } catch (err) {

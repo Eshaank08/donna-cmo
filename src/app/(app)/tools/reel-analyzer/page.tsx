@@ -1,20 +1,27 @@
 import { listJobs } from "@/lib/jobs";
+import { ToolHeader } from "@/components/tool-header";
+import { TOOLS } from "@/lib/tool-visuals";
 import { ReelAnalyzerForm } from "./reel-analyzer-form";
+
+const tool = TOOLS.find((t) => t.slug === "reel-analyzer")!;
 
 export default function ReelAnalyzerPage() {
   const pastJobs = listJobs("reel-analyzer");
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Reel analyzer</h1>
-        <p className="text-muted-foreground text-sm">
-          Paste a reel link. Get the transcript, caption, engagement numbers,
-          and frames — no key required, add{" "}
-          <code className="text-xs">GROQ_API_KEY</code> in Settings for a
-          transcript too.
-        </p>
-      </div>
+      <ToolHeader
+        icon={tool.icon}
+        title="Reel analyzer"
+        description={
+          <>
+            Paste a reel link. Get the transcript, caption, engagement
+            numbers, and frames — no key required, add{" "}
+            <code className="text-xs">GROQ_API_KEY</code> in Settings for a
+            transcript too.
+          </>
+        }
+      />
 
       <ReelAnalyzerForm />
 

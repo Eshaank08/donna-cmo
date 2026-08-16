@@ -13,24 +13,51 @@ import { getKey } from "@/lib/keys";
 const ANTHROPIC_MODEL = "claude-sonnet-5";
 const OPENAI_MODEL = "gpt-5-mini";
 
+// No key, no account, no cost — if a local Ollama server is running, this
+// is a genuine zero-API path, not a cloud provider in disguise. Only probed
+// when neither cloud key is set, so anyone who already configured a key
+// sees no behavior change at all.
+const OLLAMA_HOST = "http://localhost:11434";
+
 export class LlmConfigError extends Error {}
 
-type Provider = "anthropic" | "openai";
+type Resolved =
+  | { provider: "anthropic"; key: string }
+  | { provider: "openai"; key: string }
+  | { provider: "ollama"; model: string };
 
-function resolveProvider(): { provider: Provider; key: string } {
+async function detectOllamaModel(): Promise<string | null> {
+  try {
+    const res = await fetch(`${OLLAMA_HOST}/api/tags`, {
+      signal: AbortSignal.timeout(800),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { models?: { name: string }[] };
+    return data.models?.[0]?.name ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveProvider(): Promise<Resolved> {
   const anthropicKey = getKey("ANTHROPIC_API_KEY");
   if (anthropicKey) return { provider: "anthropic", key: anthropicKey };
 
   const openaiKey = getKey("OPENAI_API_KEY");
   if (openaiKey) return { provider: "openai", key: openaiKey };
 
+  const ollamaModel = await detectOllamaModel();
+  if (ollamaModel) return { provider: "ollama", model: ollamaModel };
+
   throw new LlmConfigError(
-    "No LLM key configured. Add an Anthropic or OpenAI API key in Settings to use this tool."
+    "No LLM available. Add an Anthropic or OpenAI API key in Settings, or run Ollama locally (any model) — no key needed for that."
   );
 }
 
-export function hasLlmKeyConfigured(): boolean {
-  return Boolean(getKey("ANTHROPIC_API_KEY") || getKey("OPENAI_API_KEY"));
+/** True if this tool can make an LLM call right now — a cloud key, or a reachable local Ollama server. */
+export async function isLlmAvailable(): Promise<boolean> {
+  if (getKey("ANTHROPIC_API_KEY") || getKey("OPENAI_API_KEY")) return true;
+  return Boolean(await detectOllamaModel());
 }
 
 async function callAnthropic(
@@ -106,20 +133,56 @@ async function callOpenAI(
   return text;
 }
 
+async function callOllama(
+  model: string,
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens: number
+): Promise<string> {
+  const res = await fetch(`${OLLAMA_HOST}/api/chat`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      model,
+      stream: false,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      options: { num_predict: maxTokens },
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Ollama error (${res.status}): ${body.slice(0, 500)}`);
+  }
+
+  const data = (await res.json()) as { message?: { content?: string } };
+  const text = data.message?.content;
+  if (typeof text !== "string" || !text.trim()) {
+    throw new Error("Ollama returned no text content.");
+  }
+  return text;
+}
+
 /**
- * Calls whichever LLM provider has a key configured — Anthropic preferred,
- * OpenAI as fallback. Throws LlmConfigError if neither is set.
+ * Calls whichever LLM is available — Anthropic key, then OpenAI key, then a
+ * local Ollama server with zero key needed. Throws LlmConfigError if none.
  */
 export async function callLlm(
   systemPrompt: string,
   userPrompt: string,
   opts: { maxTokens?: number } = {}
 ): Promise<string> {
-  const { provider, key } = resolveProvider();
+  const resolved = await resolveProvider();
   const maxTokens = opts.maxTokens ?? 1024;
 
-  if (provider === "anthropic") {
-    return callAnthropic(key, systemPrompt, userPrompt, maxTokens);
+  if (resolved.provider === "anthropic") {
+    return callAnthropic(resolved.key, systemPrompt, userPrompt, maxTokens);
   }
-  return callOpenAI(key, systemPrompt, userPrompt, maxTokens);
+  if (resolved.provider === "openai") {
+    return callOpenAI(resolved.key, systemPrompt, userPrompt, maxTokens);
+  }
+  return callOllama(resolved.model, systemPrompt, userPrompt, maxTokens);
 }

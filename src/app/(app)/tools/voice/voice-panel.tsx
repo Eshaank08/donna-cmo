@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import posthog from "posthog-js";
+import { toast } from "sonner";
+import { CheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,6 +22,7 @@ import {
 import type { HumanizeRecord, VoiceProfile } from "@/lib/voice";
 import {
   buildProfileAction,
+  buildStatisticalProfileAction,
   humanizeAction,
   type BuildProfileState,
   type HumanizeState,
@@ -32,15 +34,33 @@ const initialHumanizeState: HumanizeState = {};
 export function VoicePanel({
   profile,
   history,
+  hasLlm,
 }: {
   profile: VoiceProfile | null;
   history: HumanizeRecord[];
+  hasLlm: boolean;
 }) {
   const [buildState, runBuild, isBuilding] = useActionState(
     buildProfileAction,
     initialBuildState
   );
-  const currentProfile = buildState.profile ?? profile;
+  const [statsState, runStats, isBuildingStats] = useActionState(
+    buildStatisticalProfileAction,
+    initialBuildState
+  );
+
+  const [latestProfile, setLatestProfile] = useState(profile);
+  const [syncedBuild, setSyncedBuild] = useState(buildState.profile);
+  if (buildState.profile !== syncedBuild) {
+    setSyncedBuild(buildState.profile);
+    if (buildState.profile) setLatestProfile(buildState.profile);
+  }
+  const [syncedStats, setSyncedStats] = useState(statsState.profile);
+  if (statsState.profile !== syncedStats) {
+    setSyncedStats(statsState.profile);
+    if (statsState.profile) setLatestProfile(statsState.profile);
+  }
+  const currentProfile = latestProfile;
 
   const [sampleIds, setSampleIds] = useState<number[]>([0, 1, 2]);
   const nextSampleId = useRef(3);
@@ -50,11 +70,6 @@ export function VoicePanel({
   }
   function removeSample(id: number) {
     setSampleIds((prev) => (prev.length > 1 ? prev.filter((x) => x !== id) : prev));
-  }
-
-  function handleBuild(formData: FormData) {
-    posthog.capture("voice_profile_build_requested");
-    runBuild(formData);
   }
 
   const [humanizeState, runHumanize, isHumanizing] = useActionState(
@@ -71,14 +86,9 @@ export function VoicePanel({
     }
   }
 
-  function handleHumanize(formData: FormData) {
-    posthog.capture("voice_humanize_requested");
-    runHumanize(formData);
-  }
-
   async function handleCopy(text: string) {
     await navigator.clipboard.writeText(text);
-    posthog.capture("voice_draft_copied");
+    toast.success("Copied to clipboard");
   }
 
   return (
@@ -92,7 +102,13 @@ export function VoicePanel({
         {currentProfile && (
           <Card className="mb-4">
             <CardHeader>
-              <CardTitle className="text-base">Current profile</CardTitle>
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-base">Current profile</CardTitle>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <CheckIcon className="size-3.5" />
+                  Saved locally
+                </span>
+              </div>
               <CardDescription>
                 Built from {currentProfile.samples.length} sample
                 {currentProfile.samples.length === 1 ? "" : "s"} · last
@@ -128,7 +144,7 @@ export function VoicePanel({
           </Card>
         )}
 
-        <form action={handleBuild} className="flex flex-col gap-4">
+        <form action={runBuild} className="flex flex-col gap-4">
           <p className="text-sm text-muted-foreground">
             Paste a few samples of your own past writing — captions,
             scripts, posts. The more samples, the more specific the profile.
@@ -160,29 +176,48 @@ export function VoicePanel({
             ))}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button type="button" variant="outline" onClick={addSample}>
               Add another sample
             </Button>
-            <Button type="submit" disabled={isBuilding}>
+            <Button
+              type="submit"
+              formAction={runBuild}
+              disabled={isBuilding || !hasLlm}
+              title={hasLlm ? undefined : "Needs an LLM key or local Ollama"}
+            >
               {isBuilding
                 ? "Analyzing..."
                 : currentProfile
-                ? "Rebuild profile"
-                : "Build profile"}
+                ? "Rebuild with AI"
+                : "Build with AI"}
+            </Button>
+            <Button
+              type="submit"
+              formAction={runStats}
+              variant="secondary"
+              disabled={isBuildingStats}
+            >
+              {isBuildingStats ? "Computing..." : "Build without AI"}
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground">
+            &quot;Without AI&quot; computes real sentence-length, punctuation,
+            and repeated-phrase patterns straight from the samples — no key,
+            no network. Cruder than the AI read (it can&apos;t judge tone),
+            but zero setup.
+          </p>
         </form>
 
-        {buildState.error && (
+        {(buildState.error || statsState.error) && (
           <p className="text-destructive text-sm mt-4 whitespace-pre-wrap">
-            {buildState.error}
+            {buildState.error || statsState.error}
           </p>
         )}
       </TabsContent>
 
       <TabsContent value="humanize">
-        <form action={handleHumanize} className="flex flex-col gap-3">
+        <form action={runHumanize} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="draft_text">Draft to rewrite</Label>
             <Textarea
@@ -193,9 +228,21 @@ export function VoicePanel({
               required
             />
           </div>
-          <Button type="submit" disabled={isHumanizing} className="self-start">
+          <Button
+            type="submit"
+            disabled={isHumanizing || !hasLlm}
+            className="self-start"
+            title={hasLlm ? undefined : "Needs an LLM key or local Ollama"}
+          >
             {isHumanizing ? "Rewriting..." : "Humanize"}
           </Button>
+          {!hasLlm && (
+            <p className="text-xs text-muted-foreground">
+              Rewriting a draft always needs an LLM — there&apos;s no honest
+              rule-based version of this one. Add a key in Settings, or run
+              Ollama locally for free.
+            </p>
+          )}
         </form>
 
         {humanizeState.error && (
@@ -235,9 +282,14 @@ export function VoicePanel({
               {historyList.map((h) => (
                 <Card key={h.id}>
                   <CardContent className="flex flex-col gap-2 pt-4 text-sm">
-                    <p className="text-muted-foreground line-clamp-2">
-                      {h.input_text}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-muted-foreground line-clamp-2">
+                        {h.input_text}
+                      </p>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {h.created_at}
+                      </span>
+                    </div>
                     <p className="whitespace-pre-wrap">{h.output_text}</p>
                   </CardContent>
                 </Card>

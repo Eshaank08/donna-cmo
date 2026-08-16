@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { callLlm } from "@/lib/llm";
+import { buildStatisticalProfile } from "@/lib/voice-stats";
 
 export type VoiceProfile = {
   samples: string[];
@@ -123,6 +124,21 @@ export async function buildVoiceProfile(
     avoid: String(parsed.avoid ?? "").trim(),
   };
 
+  saveVoiceProfileRow(cleaned, fields);
+
+  const profile = getVoiceProfile();
+  if (!profile) throw new Error("Saved the profile but couldn't reload it.");
+  return profile;
+}
+
+/** Same shape as buildVoiceProfile, but pure computed statistics — no LLM, no key, no network. */
+export function buildStatisticalVoiceProfile(samples: string[]): VoiceProfile {
+  const cleaned = samples.map((s) => s.trim()).filter(Boolean);
+  if (cleaned.length === 0) {
+    throw new Error("Add at least one writing sample.");
+  }
+
+  const fields = buildStatisticalProfile(cleaned);
   saveVoiceProfileRow(cleaned, fields);
 
   const profile = getVoiceProfile();

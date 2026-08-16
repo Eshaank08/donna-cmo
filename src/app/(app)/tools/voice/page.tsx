@@ -1,35 +1,47 @@
 import Link from "next/link";
 import { getVoiceProfile, listHumanizeHistory } from "@/lib/voice";
-import { hasLlmKeyConfigured } from "@/lib/llm";
+import { isLlmAvailable } from "@/lib/llm";
+import { ToolHeader } from "@/components/tool-header";
+import { TOOLS } from "@/lib/tool-visuals";
 import { VoicePanel } from "./voice-panel";
 
-export default function VoicePage() {
+const tool = TOOLS.find((t) => t.slug === "voice")!;
+
+export default async function VoicePage() {
   const profile = getVoiceProfile();
   const history = listHumanizeHistory();
-  const hasKey = hasLlmKeyConfigured();
+  const hasLlm = await isLlmAvailable();
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Voice</h1>
-        <p className="text-muted-foreground text-sm max-w-2xl">
-          Build a profile from your own past writing, then use it to rewrite
-          AI-sounding drafts in your voice. Nothing here posts anywhere —
-          copy the result and take it wherever you were going to post it.
-        </p>
-      </div>
+      <ToolHeader
+        icon={tool.icon}
+        title="Voice"
+        description="Build a profile from your own past writing, then use it to rewrite AI-sounding drafts in your voice. Nothing here posts anywhere — copy the result and take it wherever you were going to post it."
+      />
 
-      {!hasKey && (
+      {!hasLlm && (
         <p className="text-sm text-muted-foreground border rounded-md p-3 max-w-2xl">
-          No LLM key configured. Add an Anthropic or OpenAI key in{" "}
+          No LLM available — add an Anthropic or OpenAI key in{" "}
           <Link href="/settings" className="underline">
             Settings
-          </Link>{" "}
-          to use this tool.
+          </Link>
+          , or run{" "}
+          <a
+            href="https://ollama.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            Ollama
+          </a>{" "}
+          locally with any model — no key needed for that. Rewriting a draft
+          always needs one of the two. Building a profile doesn&apos;t —
+          use the no-AI option below for real computed patterns instead.
         </p>
       )}
 
-      <VoicePanel profile={profile} history={history} />
+      <VoicePanel profile={profile} history={history} hasLlm={hasLlm} />
     </div>
   );
 }

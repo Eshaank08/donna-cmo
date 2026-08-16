@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState } from "react";
-import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,14 +20,9 @@ export function ReelAnalyzerForm() {
     initialState
   );
 
-  function handleAnalyze(formData: FormData) {
-    posthog.capture("reel_analysis_requested");
-    formAction(formData);
-  }
-
   return (
     <div className="flex flex-col gap-4">
-      <form action={handleAnalyze} className="flex gap-2 max-w-xl">
+      <form action={formAction} className="flex gap-2 max-w-xl">
         <Input
           name="url"
           placeholder="https://www.instagram.com/reel/..."

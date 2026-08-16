@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const sourceSerif = Source_Serif_4({
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

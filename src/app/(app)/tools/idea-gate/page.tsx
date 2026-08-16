@@ -1,5 +1,9 @@
 import { getIdeaGateConfig, listIdeaChecks } from "@/lib/idea-gate";
+import { ToolHeader } from "@/components/tool-header";
+import { TOOLS } from "@/lib/tool-visuals";
 import { IdeaGatePanel } from "./idea-gate-panel";
+
+const tool = TOOLS.find((t) => t.slug === "idea-gate")!;
 
 export default function IdeaGatePage() {
   const config = getIdeaGateConfig();
@@ -7,14 +11,11 @@ export default function IdeaGatePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Idea gate</h1>
-        <p className="text-muted-foreground text-sm max-w-2xl">
-          A binary yes/no filter for content ideas — ten gates, no partial
-          credit. Empty proof counts as a no. If an idea can&apos;t clear
-          every gate, it doesn&apos;t get made — fix the idea or kill it.
-        </p>
-      </div>
+      <ToolHeader
+        icon={tool.icon}
+        title="Idea gate"
+        description="A binary yes/no filter for content ideas — ten gates, no partial credit. Empty proof counts as a no. If an idea can't clear every gate, it doesn't get made — fix the idea or kill it."
+      />
       <IdeaGatePanel config={config} history={history} />
     </div>
   );
