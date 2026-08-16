@@ -21,6 +21,7 @@ import {
   Building2Icon,
   KeyRoundIcon,
   MegaphoneIcon,
+  BookOpenIcon,
 } from "lucide-react";
 
 const navMain = [
@@ -67,7 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <MegaphoneIcon />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Donna CMO</span>
+                <span className="truncate font-medium">Pocket CMO</span>
                 <span className="truncate text-xs">local &amp; open source</span>
               </div>
             </SidebarMenuButton>
@@ -79,6 +80,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton render={<Link href="/docs" />}>
+              <BookOpenIcon />
+              <span>Docs</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton render={<Link href="/settings" />}>
               <KeyRoundIcon />

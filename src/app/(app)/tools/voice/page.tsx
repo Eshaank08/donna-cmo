@@ -26,7 +26,7 @@ export default async function VoicePage() {
           <Link href="/settings" className="underline">
             Settings
           </Link>
-          , or run{" "}
+          , log into the Claude Code CLI (<code className="text-xs">claude login</code>) if it&apos;s installed, or run{" "}
           <a
             href="https://ollama.com"
             target="_blank"
@@ -35,9 +35,10 @@ export default async function VoicePage() {
           >
             Ollama
           </a>{" "}
-          locally with any model — no key needed for that. Rewriting a draft
-          always needs one of the two. Building a profile doesn&apos;t —
-          use the no-AI option below for real computed patterns instead.
+          locally with any model — no separate key needed for either of the
+          last two. Rewriting a draft always needs one of these. Building a
+          profile doesn&apos;t — use the no-AI option below for real computed
+          patterns instead.
         </p>
       )}
 

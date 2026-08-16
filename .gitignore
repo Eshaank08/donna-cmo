@@ -62,3 +62,4 @@ python/*/.env
 
 # local Claude Code worktrees (scratch, not project content)
 /.claude/worktrees/
+.gstack/

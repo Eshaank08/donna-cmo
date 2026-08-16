@@ -4,52 +4,52 @@ export const KEY_REGISTRY = [
   {
     name: "META_ACCESS_TOKEN",
     label: "Meta access token",
-    help: "Graph API token for your Instagram business account. Required by the reel analyzer.",
+    help: "Optional. Graph API token for your Instagram business account — only needed for the own-account insights view (not built into the UI yet), not for analyzing a public reel link.",
   },
   {
     name: "META_APP_ID",
     label: "Meta app ID",
-    help: "From your Meta developer app. Required by the reel analyzer.",
+    help: "Optional. From your Meta developer app — same not-yet-built insights feature as above.",
   },
   {
     name: "META_APP_SECRET",
     label: "Meta app secret",
-    help: "From your Meta developer app. Required by the reel analyzer.",
+    help: "Optional. From your Meta developer app — same not-yet-built insights feature as above.",
   },
   {
     name: "META_BUSINESS_ID",
     label: "Meta business ID",
-    help: "Your Meta business account ID. Required by the reel analyzer.",
+    help: "Optional. Your Meta business account ID — same not-yet-built insights feature as above.",
   },
   {
     name: "IG_BUSINESS_ACCOUNT_ID",
     label: "Instagram business account ID",
-    help: "The IG account the reel analyzer reads insights from.",
+    help: "Optional. The IG account the (not-yet-built) insights view would read from.",
   },
   {
     name: "GROQ_API_KEY",
     label: "Groq API key",
-    help: "Used to transcribe reel audio. Free tier at console.groq.com.",
+    help: "Optional. Adds a transcript to the reel analyzer — metadata, hooks, and frames all work without it. Free tier at console.groq.com.",
   },
   {
     name: "REDDIT_CLIENT_ID",
     label: "Reddit client ID",
-    help: "From a \"script\" app at reddit.com/prefs/apps. Reddit blocks unauthenticated access now, so this is effectively required, not optional. Note: new app requests need Reddit's manual approval since Nov 2025 and may be denied — this is your own app, never shared.",
+    help: "Effectively required. Reddit now blocks anonymous requests to its public JSON endpoints outright (401/403), so without this the scan runs but returns nothing. From a \"script\" app at reddit.com/prefs/apps. Note: new app requests need Reddit's manual approval since Nov 2025 and may be denied — this is your own app, never shared.",
   },
   {
     name: "REDDIT_CLIENT_SECRET",
     label: "Reddit client secret",
-    help: "From the same Reddit app.",
+    help: "From the same Reddit app as above.",
   },
   {
     name: "ANTHROPIC_API_KEY",
     label: "Anthropic API key",
-    help: "Used by the Voice tool to analyze your writing and rewrite drafts. Preferred over OpenAI if both are set.",
+    help: "Optional. Used by the Voice tool to analyze your writing and rewrite drafts. Preferred over OpenAI if both are set. If neither is set, Voice automatically falls back to a logged-in Claude Code CLI, then a local Ollama server if one's running — no key needed for either.",
   },
   {
     name: "OPENAI_API_KEY",
     label: "OpenAI API key",
-    help: "Used by the Voice tool if no Anthropic key is set.",
+    help: "Optional. Used by the Voice tool if no Anthropic key is set. Same Claude Code / local-Ollama fallback applies if neither key is present.",
   },
 ] as const;
 

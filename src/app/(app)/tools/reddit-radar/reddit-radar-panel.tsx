@@ -247,12 +247,26 @@ export function RedditRadarPanel({ config }: { config: RedditRadarConfig }) {
         )}
 
         <div className="flex flex-col gap-3">
-          {(posts ?? []).length === 0 && scanState.result && (
-            <p className="text-muted-foreground text-sm">
-              No posts cleared the bar. Widen the lookback or lower min score
-              in Configure.
+          {(posts ?? []).length === 0 && scanState.result?.blocked && (
+            <p className="text-destructive text-sm">
+              Reddit is blocking anonymous requests right now — every request
+              in this scan came back 401/403. This isn&apos;t &quot;no
+              matches,&quot; it&apos;s access being refused. Add a free
+              Reddit API app under{" "}
+              <a href="/settings" className="underline underline-offset-2">
+                Settings
+              </a>{" "}
+              for OAuth and re-run.
             </p>
           )}
+          {(posts ?? []).length === 0 &&
+            scanState.result &&
+            !scanState.result.blocked && (
+              <p className="text-muted-foreground text-sm">
+                No posts cleared the bar. Widen the lookback or lower min
+                score in Configure.
+              </p>
+            )}
           {(posts ?? []).map((post) => (
             <Card key={post.id}>
               <CardHeader>

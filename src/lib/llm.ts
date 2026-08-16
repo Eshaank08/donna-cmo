@@ -2,6 +2,8 @@
 // provider is a small addition here, not a change everywhere it's used.
 // Server-only (reads keys from SQLite via @/lib/keys) — never import this
 // from a client component.
+import { spawn } from "node:child_process";
+import os from "node:os";
 import { getKey } from "@/lib/keys";
 
 // Reasonable current defaults as of 2026-08-16. Bump these here if a
@@ -24,7 +26,9 @@ export class LlmConfigError extends Error {}
 type Resolved =
   | { provider: "anthropic"; key: string }
   | { provider: "openai"; key: string }
-  | { provider: "ollama"; model: string };
+  | { provider: "claude-code" }
+  | { provider: "ollama"; model: string }
+  | { provider: "hermes" };
 
 async function detectOllamaModel(): Promise<string | null> {
   try {
@@ -39,6 +43,72 @@ async function detectOllamaModel(): Promise<string | null> {
   }
 }
 
+/** Runs a CLI as a subprocess and collects its output. Never throws on a non-zero exit — callers check `code`. Kills and rejects on timeout, since at least one of these CLIs has been observed to print an error and then hang instead of exiting. */
+function spawnCollect(
+  command: string,
+  args: string[],
+  opts: { timeoutMs?: number } = {}
+): Promise<{ stdout: string; stderr: string; code: number | null }> {
+  return new Promise((resolve, reject) => {
+    // cwd is a neutral tmp dir, not this repo — belt-and-suspenders on top
+    // of each call's own isolation flags so a Voice-tool call never picks
+    // up donna-cmo's own .mcp.json, CLAUDE.md, or hooks as context.
+    const child = spawn(command, args, { cwd: os.tmpdir(), env: process.env });
+    let stdout = "";
+    let stderr = "";
+    const timer = opts.timeoutMs
+      ? setTimeout(() => {
+          child.kill();
+          reject(new Error(`${command} timed out`));
+        }, opts.timeoutMs)
+      : null;
+    child.stdout.on("data", (d) => (stdout += d.toString()));
+    child.stderr.on("data", (d) => (stderr += d.toString()));
+    child.on("error", (err) => {
+      if (timer) clearTimeout(timer);
+      reject(err);
+    });
+    child.on("close", (code) => {
+      if (timer) clearTimeout(timer);
+      resolve({ stdout, stderr, code });
+    });
+  });
+}
+
+/** Free, local, no completion cost — just confirms the CLI is installed and logged in. */
+async function detectClaudeCodeCli(): Promise<boolean> {
+  try {
+    const { stdout, code } = await spawnCollect("claude", ["auth", "status"], {
+      timeoutMs: 4000,
+    });
+    if (code !== 0) return false;
+    const status = JSON.parse(stdout) as { loggedIn?: boolean };
+    return status.loggedIn === true;
+  } catch {
+    return false;
+  }
+}
+
+// Hermes is Eshaan's own personal agent CLI, not something anyone else
+// installing this toolkit would have — deliberately not documented in the
+// README/Settings copy the way Claude Code and Ollama are. It exists here
+// as a best-effort extra fallback on his machine only, and it's genuinely
+// best-effort: it routes through whichever pooled provider credential is
+// configured, which has been observed to fail (insufficient credits) or
+// hang past a clean error message rather than exit — hence the hard
+// timeout and the explicit "API call failed" text check below, since exit
+// code alone isn't proven reliable for this CLI.
+async function detectHermesCli(): Promise<boolean> {
+  try {
+    const { code } = await spawnCollect("hermes", ["status"], {
+      timeoutMs: 5000,
+    });
+    return code === 0;
+  } catch {
+    return false;
+  }
+}
+
 async function resolveProvider(): Promise<Resolved> {
   const anthropicKey = getKey("ANTHROPIC_API_KEY");
   if (anthropicKey) return { provider: "anthropic", key: anthropicKey };
@@ -46,18 +116,24 @@ async function resolveProvider(): Promise<Resolved> {
   const openaiKey = getKey("OPENAI_API_KEY");
   if (openaiKey) return { provider: "openai", key: openaiKey };
 
+  if (await detectClaudeCodeCli()) return { provider: "claude-code" };
+
   const ollamaModel = await detectOllamaModel();
   if (ollamaModel) return { provider: "ollama", model: ollamaModel };
 
+  if (await detectHermesCli()) return { provider: "hermes" };
+
   throw new LlmConfigError(
-    "No LLM available. Add an Anthropic or OpenAI API key in Settings, or run Ollama locally (any model) — no key needed for that."
+    "No LLM available. Add an Anthropic or OpenAI API key in Settings, log into the Claude Code CLI (`claude login`) if it's installed, or run Ollama locally (any model) — no key needed for the last two."
   );
 }
 
-/** True if this tool can make an LLM call right now — a cloud key, or a reachable local Ollama server. */
+/** True if this tool can make an LLM call right now — a cloud key, a logged-in Claude Code CLI, a reachable local Ollama server, or (personal-machine best-effort) Hermes. */
 export async function isLlmAvailable(): Promise<boolean> {
   if (getKey("ANTHROPIC_API_KEY") || getKey("OPENAI_API_KEY")) return true;
-  return Boolean(await detectOllamaModel());
+  if (await detectClaudeCodeCli()) return true;
+  if (await detectOllamaModel()) return true;
+  return await detectHermesCli();
 }
 
 async function callAnthropic(
@@ -133,6 +209,93 @@ async function callOpenAI(
   return text;
 }
 
+async function callClaudeCode(
+  systemPrompt: string,
+  userPrompt: string
+): Promise<string> {
+  // --system-prompt fully replaces the default coding-agent framing (not
+  // --append-system-prompt, which would stack this tool's instructions on
+  // top of it). --tools ""/--strict-mcp-config/--setting-sources "" keep
+  // this a plain text-in-text-out call: no file reads, no MCP servers, no
+  // user or project CLAUDE.md/settings/hooks bleeding into the response.
+  // No token cap here — the CLI doesn't expose a max-output-tokens flag.
+  const { stdout, stderr, code } = await spawnCollect("claude", [
+    "-p",
+    userPrompt,
+    "--system-prompt",
+    systemPrompt,
+    "--output-format",
+    "json",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--setting-sources",
+    "",
+  ]);
+
+  if (code !== 0) {
+    throw new Error(
+      `Claude Code CLI error (exit ${code}): ${(stderr || stdout).slice(0, 500)}`
+    );
+  }
+
+  let parsed: { is_error?: boolean; result?: string };
+  try {
+    parsed = JSON.parse(stdout);
+  } catch {
+    throw new Error(
+      `Claude Code CLI returned unparseable output: ${stdout.slice(0, 500)}`
+    );
+  }
+
+  if (parsed.is_error || typeof parsed.result !== "string" || !parsed.result.trim()) {
+    throw new Error(
+      `Claude Code CLI returned no usable result: ${(parsed.result ?? stdout).slice(0, 500)}`
+    );
+  }
+
+  return parsed.result;
+}
+
+async function callHermes(
+  systemPrompt: string,
+  userPrompt: string
+): Promise<string> {
+  // No --system-prompt-equivalent flag exists for `hermes chat`, so it's
+  // folded into the query text. --ignore-rules (not --safe-mode) so it
+  // keeps ~/.hermes/config.yaml's actual configured default model/provider
+  // — --safe-mode also implies --ignore-user-config, which was observed
+  // to fall back to a builtin default model this account can't afford,
+  // even though the real configured default is a free one.
+  const combinedPrompt = `${systemPrompt}\n\n---\n\nRespond only to the above instructions, nothing else. Do not use any tools.\n\n${userPrompt}`;
+
+  const { stdout, stderr, code } = await spawnCollect(
+    "hermes",
+    ["chat", "-q", combinedPrompt, "-Q", "--ignore-rules", "--max-turns", "1"],
+    { timeoutMs: 60000 }
+  );
+
+  if (code !== 0) {
+    throw new Error(
+      `Hermes CLI error (exit ${code}): ${(stderr || stdout).slice(0, 500)}`
+    );
+  }
+
+  const lines = stdout.split("\n");
+  const sessionLineIdx = lines.findIndex((l) => l.startsWith("session_id:"));
+  const result = (
+    sessionLineIdx === -1 ? stdout : lines.slice(sessionLineIdx + 1).join("\n")
+  ).trim();
+
+  // Exit code alone isn't proven reliable for this CLI (observed hanging
+  // past a printed error instead of exiting non-zero), so also check text.
+  if (!result || /^API call failed/.test(result) || stdout.includes("API call failed")) {
+    throw new Error(`Hermes CLI returned no usable result: ${(result || stdout).slice(0, 500)}`);
+  }
+
+  return result;
+}
+
 async function callOllama(
   model: string,
   systemPrompt: string,
@@ -183,6 +346,12 @@ export async function callLlm(
   }
   if (resolved.provider === "openai") {
     return callOpenAI(resolved.key, systemPrompt, userPrompt, maxTokens);
+  }
+  if (resolved.provider === "claude-code") {
+    return callClaudeCode(systemPrompt, userPrompt);
+  }
+  if (resolved.provider === "hermes") {
+    return callHermes(systemPrompt, userPrompt);
   }
   return callOllama(resolved.model, systemPrompt, userPrompt, maxTokens);
 }

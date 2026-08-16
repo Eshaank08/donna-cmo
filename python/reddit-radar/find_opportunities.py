@@ -60,6 +60,23 @@ def _urlopen(req: urllib.request.Request, timeout: float = 30):
 
 
 @dataclass
+class FetchStats:
+    """Tracks whether this run actually reached Reddit or was refused outright.
+    A count of 0 posts is ambiguous on its own — it could mean genuinely no
+    matches, or it could mean every single request got a 401/403 back. This
+    is what lets callers tell the two apart instead of reporting a fake
+    "no matches" empty state when the real story is "Reddit said no"."""
+
+    attempts: int = 0
+    errors: int = 0
+    auth_errors: int = 0  # count of 401/403 responses specifically
+
+    @property
+    def fully_blocked(self) -> bool:
+        return self.attempts > 0 and self.errors == self.attempts and self.auth_errors > 0
+
+
+@dataclass
 class Post:
     id: str
     subreddit: str
@@ -145,6 +162,7 @@ def http_get_json(
     user_agent: str,
     token: str | None = None,
     pause: float = 1.0,
+    stats: FetchStats | None = None,
 ) -> dict[str, Any] | None:
     headers = {"User-Agent": user_agent}
     if token:
@@ -155,6 +173,8 @@ def http_get_json(
             url = url[:-5]
 
     req = urllib.request.Request(url, headers=headers)
+    if stats:
+        stats.attempts += 1
     try:
         with _urlopen(req, timeout=30) as resp:
             body = resp.read().decode()
@@ -163,10 +183,16 @@ def http_get_json(
     except urllib.error.HTTPError as e:
         err_body = e.read()[:300]
         print(f"GET {url} -> {e.code}: {err_body!r}", file=sys.stderr)
+        if stats:
+            stats.errors += 1
+            if e.code in (401, 403):
+                stats.auth_errors += 1
         time.sleep(pause * 2)
         return None
     except Exception as e:
         print(f"GET {url} failed: {e}", file=sys.stderr)
+        if stats:
+            stats.errors += 1
         time.sleep(pause)
         return None
 
@@ -204,10 +230,11 @@ def fetch_subreddit_new(
     user_agent: str,
     token: str | None,
     pause: float,
+    stats: FetchStats | None = None,
 ) -> list[Post]:
     q = urllib.parse.urlencode({"limit": str(limit), "raw_json": "1"})
     url = f"https://www.reddit.com/r/{sub}/new.json?{q}"
-    return listing_to_posts(http_get_json(url, user_agent, token, pause))
+    return listing_to_posts(http_get_json(url, user_agent, token, pause, stats))
 
 
 def fetch_search(
@@ -217,6 +244,7 @@ def fetch_search(
     token: str | None,
     pause: float,
     subreddit: str | None = None,
+    stats: FetchStats | None = None,
 ) -> list[Post]:
     params: dict[str, str] = {
         "q": query,
@@ -232,7 +260,7 @@ def fetch_search(
     else:
         base = "https://www.reddit.com/search.json"
     url = f"{base}?{urllib.parse.urlencode(params)}"
-    return listing_to_posts(http_get_json(url, user_agent, token, pause))
+    return listing_to_posts(http_get_json(url, user_agent, token, pause, stats))
 
 
 def normalize_text(s: str) -> str:
@@ -326,7 +354,9 @@ def draft_comment_stub(post: Post, cfg: dict[str, Any]) -> str:
     return body
 
 
-def render_markdown(posts: list[Post], cfg: dict[str, Any], generated_at: str) -> str:
+def render_markdown(
+    posts: list[Post], cfg: dict[str, Any], generated_at: str, blocked: bool = False
+) -> str:
     lines = [
         f"# Reddit radar — {generated_at}",
         "",
@@ -366,12 +396,22 @@ def render_markdown(posts: list[Post], cfg: dict[str, Any], generated_at: str) -
             ]
         )
     if not posts:
-        lines.append("_No posts cleared the bar. Widen keywords or lookback._")
+        if blocked:
+            lines.append(
+                "_Reddit refused every request in this scan (401/403 from its "
+                "public JSON endpoints) — this is not \"no matches,\" it's "
+                "anonymous access being blocked. Add a free Reddit API app "
+                "(reddit.com/prefs/apps) for OAuth and re-run._"
+            )
+        else:
+            lines.append("_No posts cleared the bar. Widen keywords or lookback._")
         lines.append("")
     return "\n".join(lines)
 
 
-def collect(cfg: dict[str, Any], token: str | None) -> list[Post]:
+def collect(
+    cfg: dict[str, Any], token: str | None, stats: FetchStats | None = None
+) -> list[Post]:
     ua = cfg["user_agent"]
     pause = float(cfg.get("request_pause_sec", 1.2))
     limit = int(cfg.get("per_sub_limit", 40))
@@ -379,13 +419,13 @@ def collect(cfg: dict[str, Any], token: str | None) -> list[Post]:
 
     for sub in cfg.get("subreddits", []):
         print(f"fetch r/{sub}/new …", file=sys.stderr)
-        for p in fetch_subreddit_new(sub, limit, ua, token, pause):
+        for p in fetch_subreddit_new(sub, limit, ua, token, pause, stats):
             if p.id:
                 by_id[p.id] = p
 
     for q in cfg.get("search_queries", []):
         print(f"search: {q!r} …", file=sys.stderr)
-        for p in fetch_search(q, 40, ua, token, pause):
+        for p in fetch_search(q, 40, ua, token, pause, stats=stats):
             if p.id:
                 by_id.setdefault(p.id, p)
 
@@ -424,7 +464,8 @@ def main() -> int:
         else:
             print("oauth failed — falling back to public JSON", file=sys.stderr)
 
-    raw = collect(cfg, token)
+    stats = FetchStats()
+    raw = collect(cfg, token, stats)
     lookback = float(cfg["lookback_hours"])
     min_score = float(cfg["min_score"])
     max_results = int(cfg.get("max_results", 25))
@@ -448,11 +489,17 @@ def main() -> int:
     scored = scored[:max_results]
 
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    md = render_markdown(scored, cfg, generated_at)
+    md = render_markdown(scored, cfg, generated_at, blocked=stats.fully_blocked)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(md, encoding="utf-8")
     print(f"wrote {args.out} ({len(scored)} posts)", file=sys.stderr)
+    if stats.fully_blocked:
+        print(
+            f"reddit blocked all {stats.attempts} request(s) (401/403) — "
+            "add a Reddit API app for OAuth, see --help",
+            file=sys.stderr,
+        )
 
     if args.json:
         jpath = args.out.with_suffix(".json")
@@ -524,7 +571,8 @@ def run_scan(
         token = oauth_token(cid, csec, cfg["user_agent"])
         auth = "oauth" if token else "public_fallback"
 
-    raw = collect(cfg, token)
+    stats = FetchStats()
+    raw = collect(cfg, token, stats)
     lookback = float(cfg["lookback_hours"])
     threshold = float(cfg["min_score"])
     max_results = int(cfg.get("max_results", 25))
@@ -572,6 +620,9 @@ def run_scan(
         "lookback_hours": lookback,
         "min_score": threshold,
         "posts": posts_out,
+        "blocked": stats.fully_blocked,
+        "fetch_attempts": stats.attempts,
+        "fetch_errors": stats.errors,
     }
 
 

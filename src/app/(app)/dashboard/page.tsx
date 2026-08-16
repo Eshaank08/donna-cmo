@@ -38,7 +38,7 @@ export default async function DashboardPage() {
           ? `${reelJobs.length} run${reelJobs.length === 1 ? "" : "s"} · ${relativeTime(reelJobs[0].created_at)}`
           : "no runs yet";
       case "reddit-radar":
-        return hasRedditKeys ? "Reddit key set" : "needs Reddit key";
+        return hasRedditKeys ? "Reddit key set (OAuth)" : "needs Reddit OAuth key — Reddit blocks anonymous access";
       case "idea-gate":
         return ideaChecks.length
           ? `${ideaChecks.length} idea${ideaChecks.length === 1 ? "" : "s"} checked`
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
       case "ideation-board":
         return cards.length ? `${cards.length} card${cards.length === 1 ? "" : "s"}` : "no cards yet";
       case "voice":
-        if (!hasLlm) return "needs LLM key or Ollama";
+        if (!hasLlm) return "needs a key, Claude Code, or Ollama";
         return voiceProfile ? "profile saved" : "no profile yet";
       default:
         return "coming soon";
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
 
       {keysSet === 0 && (
         <div className="bg-callout text-callout-foreground rounded-2xl px-4 py-3 text-sm flex items-center justify-between gap-3">
-          <span>No API keys set yet — most tools need at least one to run.</span>
+          <span>No API keys set yet — Idea gate, Ideation board, and the Reel analyzer&apos;s metadata/hooks/frames all still run. Reddit radar needs a free Reddit OAuth key (Reddit blocks anonymous access). The Voice tool needs an LLM too, but a logged-in Claude Code CLI or local Ollama both work with no key.</span>
           <Link href="/settings" className="underline underline-offset-2 shrink-0 font-medium">
             Add them in Settings
           </Link>

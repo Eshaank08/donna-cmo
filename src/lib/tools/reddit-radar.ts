@@ -32,6 +32,11 @@ export type ScanResult = {
   lookback_hours: number;
   min_score: number;
   posts: RedditPost[];
+  /** True when every request this scan made was refused (401/403) — Reddit
+   * blocking anonymous access, not a genuine "no matches" result. */
+  blocked: boolean;
+  fetch_attempts: number;
+  fetch_errors: number;
 };
 
 export async function scanRedditRadar(opts: {

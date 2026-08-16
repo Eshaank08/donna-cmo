@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Donna CMO",
+  title: "Pocket CMO",
   description:
     "Open-source marketing toolkit — tools that help you do marketing, not tools that do marketing for you.",
 };

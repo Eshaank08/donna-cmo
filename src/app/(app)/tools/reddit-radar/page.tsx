@@ -13,7 +13,7 @@ export default function RedditRadarPage() {
       <ToolHeader
         icon={tool.icon}
         title="Reddit radar"
-        description="Finds people with the problem your product solves. You message them yourself — nothing here posts or comments on your behalf. Needs your own Reddit API app (Settings) — Reddit blocks unauthenticated access now."
+        description="Finds people with the problem your product solves. You message them yourself — nothing here posts or comments on your behalf. Reddit currently blocks anonymous access to its public JSON endpoints, so this needs your own free Reddit API app (Settings) for OAuth to actually return results."
       />
 
       <RedditRadarPanel config={config} />

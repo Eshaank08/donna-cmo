@@ -184,7 +184,7 @@ export function VoicePanel({
               type="submit"
               formAction={runBuild}
               disabled={isBuilding || !hasLlm}
-              title={hasLlm ? undefined : "Needs an LLM key or local Ollama"}
+              title={hasLlm ? undefined : "Needs an LLM key, Claude Code, or local Ollama"}
             >
               {isBuilding
                 ? "Analyzing..."
@@ -232,15 +232,16 @@ export function VoicePanel({
             type="submit"
             disabled={isHumanizing || !hasLlm}
             className="self-start"
-            title={hasLlm ? undefined : "Needs an LLM key or local Ollama"}
+            title={hasLlm ? undefined : "Needs an LLM key, Claude Code, or local Ollama"}
           >
             {isHumanizing ? "Rewriting..." : "Humanize"}
           </Button>
           {!hasLlm && (
             <p className="text-xs text-muted-foreground">
               Rewriting a draft always needs an LLM — there&apos;s no honest
-              rule-based version of this one. Add a key in Settings, or run
-              Ollama locally for free.
+              rule-based version of this one. Add a key in Settings, log
+              into the Claude Code CLI, or run Ollama locally — no key
+              needed for the last two.
             </p>
           )}
         </form>
