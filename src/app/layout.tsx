@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   title: "Pocket CMO",
   description:
     "Open-source marketing toolkit — tools that help you do marketing, not tools that do marketing for you.",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

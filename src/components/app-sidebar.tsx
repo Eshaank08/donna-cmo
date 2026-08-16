@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 import { NavMain } from "@/components/nav-main";
 import {
@@ -20,7 +21,6 @@ import {
   FolderOpenIcon,
   Building2Icon,
   KeyRoundIcon,
-  MegaphoneIcon,
   BookOpenIcon,
 } from "lucide-react";
 
@@ -58,15 +58,19 @@ const navMain = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { resolvedTheme } = useTheme();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link href="/dashboard" />}>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <MegaphoneIcon />
-              </div>
+              <img
+                src={resolvedTheme === "dark" ? "/logo-dark.svg" : "/logo.svg"}
+                alt="Pocket CMO"
+                className="size-8 shrink-0 rounded-lg"
+              />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">Pocket CMO</span>
                 <span className="truncate text-xs">local &amp; open source</span>
